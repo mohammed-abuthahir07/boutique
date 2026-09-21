@@ -2,7 +2,6 @@ const db = require("../../config/database");
 
 const CustomerAuthModel = {
 
-    // Find customer by email
     async findByEmail(email) {
         const [rows] = await db.query(`
             SELECT
@@ -23,8 +22,26 @@ const CustomerAuthModel = {
         return rows[0];
     },
 
+    async findByGoogleId(googleId) {
+        const [rows] = await db.query(`
+            SELECT
+                id,
+                name,
+                email,
+                phone,
+                password,
+                google_id,
+                status,
+                created_at,
+                updated_at
+            FROM customers
+            WHERE google_id = ?
+            LIMIT 1
+        `, [googleId]);
 
-    // Find customer by ID
+        return rows[0];
+    },
+
     async findById(id) {
         const [rows] = await db.query(`
             SELECT
@@ -43,13 +60,12 @@ const CustomerAuthModel = {
         return rows[0];
     },
 
-
-    // Create customer
     async create({
         name,
         email,
         phone,
-        password
+        password,
+        google_id
     }) {
         const [result] = await db.query(`
             INSERT INTO customers
@@ -57,17 +73,30 @@ const CustomerAuthModel = {
                 name,
                 email,
                 phone,
-                password
+                password,
+                google_id
             )
-            VALUES (?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?)
         `, [
             name,
             email,
             phone,
-            password
+            password,
+            google_id
         ]);
 
         return result.insertId;
+    },
+
+    async updateGoogleId(customerId, googleId) {
+        await db.query(`
+            UPDATE customers
+            SET google_id = ?
+            WHERE id = ?
+        `, [
+            googleId,
+            customerId
+        ]);
     }
 
 };

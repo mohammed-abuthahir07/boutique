@@ -9,29 +9,40 @@ const customerAuthMiddleware =
 const router = express.Router();
 
 
-// =====================================================
-// PUBLIC CUSTOMER AUTH ROUTES
-// =====================================================
+// ==========================================
+// CUSTOMER REGISTER
+// ==========================================
 
-// Customer registration
 router.post(
     "/register",
     CustomerAuthController.register
 );
 
 
-// Customer login
+// ==========================================
+// CUSTOMER EMAIL/PASSWORD LOGIN
+// ==========================================
+
 router.post(
     "/login",
     CustomerAuthController.login
 );
 
 
-// =====================================================
-// PROTECTED CUSTOMER ROUTES
-// =====================================================
+// ==========================================
+// CUSTOMER GOOGLE LOGIN
+// ==========================================
 
-// Customer profile
+router.post(
+    "/google",
+    CustomerAuthController.googleLogin
+);
+
+
+// ==========================================
+// CUSTOMER PROFILE
+// ==========================================
+
 router.get(
     "/profile",
     customerAuthMiddleware,
