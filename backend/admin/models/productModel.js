@@ -2,7 +2,7 @@ const db = require("../../config/database");
 
 const ProductModel = {
 
-    // Get all products
+    // Get all products with variants
     async findAll() {
         const [rows] = await db.query(`
             SELECT
@@ -23,11 +23,15 @@ const ProductModel = {
             ORDER BY p.id DESC
         `);
 
+        for (const product of rows) {
+            product.variants = await this.findVariantsByProductId(product.id);
+        }
+
         return rows;
     },
 
 
-    // Get product by ID
+    // Get product by ID with variants
     async findById(id) {
         const [rows] = await db.query(
             `
@@ -52,7 +56,127 @@ const ProductModel = {
             [id]
         );
 
+        if (!rows[0]) {
+            return null;
+        }
+
+        const product = rows[0];
+
+        product.variants =
+            await this.findVariantsByProductId(product.id);
+
+        return product;
+    },
+
+
+    // Get variants of a product
+    async findVariantsByProductId(productId) {
+        const [rows] = await db.query(
+            `
+            SELECT
+                id,
+                product_id,
+                color,
+                stock,
+                created_at,
+                updated_at
+            FROM product_variants
+            WHERE product_id = ?
+            ORDER BY id ASC
+            `,
+            [productId]
+        );
+
+        return rows;
+    },
+
+
+    // Get one variant
+    async findVariantById(variantId) {
+        const [rows] = await db.query(
+            `
+            SELECT
+                id,
+                product_id,
+                color,
+                stock,
+                created_at,
+                updated_at
+            FROM product_variants
+            WHERE id = ?
+            LIMIT 1
+            `,
+            [variantId]
+        );
+
         return rows[0] || null;
+    },
+
+
+    // Create variant
+    async createVariant({
+        product_id,
+        color,
+        stock
+    }) {
+        const [result] = await db.query(
+            `
+            INSERT INTO product_variants
+                (
+                    product_id,
+                    color,
+                    stock
+                )
+            VALUES
+                (?, ?, ?)
+            `,
+            [
+                product_id,
+                color,
+                stock
+            ]
+        );
+
+        return result.insertId;
+    },
+
+
+    // Update variant
+    async updateVariant(
+        variantId,
+        {
+            color,
+            stock
+        }
+    ) {
+        await db.query(
+            `
+            UPDATE product_variants
+            SET
+                color = ?,
+                stock = ?
+            WHERE id = ?
+            `,
+            [
+                color,
+                stock,
+                variantId
+            ]
+        );
+    },
+
+
+    // Delete variant
+    async deleteVariant(variantId) {
+        const [result] = await db.query(
+            `
+            DELETE FROM product_variants
+            WHERE id = ?
+            `,
+            [variantId]
+        );
+
+        return result.affectedRows;
     },
 
 

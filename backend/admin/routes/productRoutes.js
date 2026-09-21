@@ -1,3 +1,4 @@
+
 const express = require("express");
 
 const productController = require("../controllers/productController");
@@ -5,22 +6,80 @@ const authMiddleware = require("../../middleware/authMiddleware");
 
 const router = express.Router();
 
-// All product APIs require admin authentication
+// =====================================================
+// ADMIN PRODUCT ROUTES
+// All product and variant APIs require admin login
+// =====================================================
+
 router.use(authMiddleware);
 
+
+// =====================================================
+// PRODUCT VARIANT ROUTES
+// These must come BEFORE /:id routes
+// =====================================================
+
+// Add color variant
+// POST /api/admin/products/:id/variants
+router.post(
+    "/:id/variants",
+    productController.createVariant
+);
+
+// Update color variant
+// PUT /api/admin/products/:id/variants/:variantId
+router.put(
+    "/:id/variants/:variantId",
+    productController.updateVariant
+);
+
+// Delete color variant
+// DELETE /api/admin/products/:id/variants/:variantId
+router.delete(
+    "/:id/variants/:variantId",
+    productController.deleteVariant
+);
+
+
+// =====================================================
+// PRODUCT ROUTES
+// =====================================================
+
 // Get all products
-router.get("/", productController.getAll);
+// GET /api/admin/products
+router.get(
+    "/",
+    productController.getAll
+);
 
 // Get single product
-router.get("/:id", productController.getById);
+// GET /api/admin/products/:id
+router.get(
+    "/:id",
+    productController.getById
+);
 
 // Create product
-router.post("/", productController.create);
+// POST /api/admin/products
+router.post(
+    "/",
+    productController.create
+);
 
 // Update product
-router.put("/:id", productController.update);
+// PUT /api/admin/products/:id
+router.put(
+    "/:id",
+    productController.update
+);
 
 // Delete product
-router.delete("/:id", productController.delete);
+// DELETE /api/admin/products/:id
+router.delete(
+    "/:id",
+    productController.delete
+);
+
 
 module.exports = router;
+
