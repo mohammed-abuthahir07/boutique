@@ -7,6 +7,7 @@ const PORT = process.env.PORT || 5000;
 const authRoutes = require("./admin/routes/authRoutes");
 const categoryRoutes = require("./admin/routes/categoryRoutes");
 const productRoutes = require("./admin/routes/productRoutes");
+const offerRoutes = require("./admin/routes/offerRoutes");
 
 
 
@@ -21,6 +22,7 @@ app.use("/uploads", express.static("uploads"));
 app.use("/api/admin/auth", authRoutes);
 app.use("/api/admin/categories", categoryRoutes);
 app.use("/api/admin/products", productRoutes);
+app.use("/api/admin/offers", offerRoutes);
 
 
 
