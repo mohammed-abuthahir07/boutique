@@ -9,6 +9,7 @@ const categoryRoutes = require("./admin/routes/categoryRoutes");
 const productRoutes = require("./admin/routes/productRoutes");
 const offerRoutes = require("./admin/routes/offerRoutes");
 const orderRoutes = require("./admin/routes/orderRoutes");
+const analyticsRoutes = require("./admin/routes/analyticsRoutes");
 
 
 
@@ -25,6 +26,7 @@ app.use("/api/admin/categories", categoryRoutes);
 app.use("/api/admin/products", productRoutes);
 app.use("/api/admin/offers", offerRoutes);
 app.use("/api/admin/orders", orderRoutes);
+app.use("/api/admin/analytics", analyticsRoutes);
 
 
 
