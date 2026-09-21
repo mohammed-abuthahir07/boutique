@@ -11,6 +11,7 @@ const offerRoutes = require("./admin/routes/offerRoutes");
 const orderRoutes = require("./admin/routes/orderRoutes");
 const analyticsRoutes = require("./admin/routes/analyticsRoutes");
 const dashboardRoutes = require("./admin/routes/dashboardRoutes");
+const inventoryRoutes = require("./admin/routes/inventoryRoutes");
 
 
 
@@ -29,6 +30,7 @@ app.use("/api/admin/offers", offerRoutes);
 app.use("/api/admin/orders", orderRoutes);
 app.use("/api/admin/analytics", analyticsRoutes);
 app.use("/api/admin/dashboard", dashboardRoutes);
+app.use("/api/admin/inventory", inventoryRoutes);
 
 
 
