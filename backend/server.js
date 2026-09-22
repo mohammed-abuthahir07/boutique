@@ -19,6 +19,7 @@ const publicOfferRoutes = require("./public/routes/offerRoutes");
 const customerProfileRoutes = require("./customer/routes/profileRoutes");
 const customerFavoriteRoutes = require("./customer/routes/favoriteRoutes");
 const customerCartRoutes = require("./customer/routes/cartRoutes");
+const customerOrderRoutes = require("./customer/routes/orderRoutes");
 
 
 app.use(cors());
@@ -48,6 +49,8 @@ app.use("/api/public/offers", publicOfferRoutes);
 app.use("/api/customer/profile", customerProfileRoutes);
 app.use("/api/customer/favorites", customerFavoriteRoutes);
 app.use("/api/customer/cart", customerCartRoutes);
+app.use("/api/customer/orders", customerOrderRoutes);
+
 
 
 
