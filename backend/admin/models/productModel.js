@@ -2,8 +2,12 @@ const db = require("../../config/database");
 
 const ProductModel = {
 
-    // Get all products with variants
+    // =====================================================
+    // GET ALL PRODUCTS
+    // =====================================================
+
     async findAll() {
+
         const [rows] = await db.query(`
             SELECT
                 p.id,
@@ -24,15 +28,28 @@ const ProductModel = {
         `);
 
         for (const product of rows) {
-            product.variants = await this.findVariantsByProductId(product.id);
+
+            product.variants =
+                await this.findVariantsByProductId(
+                    product.id
+                );
+
+            product.colors =
+                await this.findColorImagesByProductId(
+                    product.id
+                );
         }
 
         return rows;
     },
 
 
-    // Get product by ID with variants
+    // =====================================================
+    // GET PRODUCT BY ID
+    // =====================================================
+
     async findById(id) {
+
         const [rows] = await db.query(
             `
             SELECT
@@ -63,20 +80,32 @@ const ProductModel = {
         const product = rows[0];
 
         product.variants =
-            await this.findVariantsByProductId(product.id);
+            await this.findVariantsByProductId(
+                product.id
+            );
+
+        product.color_images =
+            await this.findColorImagesByProductId(
+                product.id
+            );
 
         return product;
     },
 
 
-    // Get variants of a product
+    // =====================================================
+    // GET VARIANTS
+    // =====================================================
+
     async findVariantsByProductId(productId) {
+
         const [rows] = await db.query(
             `
             SELECT
                 id,
                 product_id,
                 color,
+                size,
                 stock,
                 created_at,
                 updated_at
@@ -91,14 +120,19 @@ const ProductModel = {
     },
 
 
-    // Get one variant
+    // =====================================================
+    // GET ONE VARIANT
+    // =====================================================
+
     async findVariantById(variantId) {
+
         const [rows] = await db.query(
             `
             SELECT
                 id,
                 product_id,
                 color,
+                size,
                 stock,
                 created_at,
                 updated_at
@@ -113,26 +147,33 @@ const ProductModel = {
     },
 
 
-    // Create variant
+    // =====================================================
+    // CREATE VARIANT
+    // =====================================================
+
     async createVariant({
         product_id,
         color,
+        size,
         stock
     }) {
+
         const [result] = await db.query(
             `
             INSERT INTO product_variants
-                (
-                    product_id,
-                    color,
-                    stock
-                )
+            (
+                product_id,
+                color,
+                size,
+                stock
+            )
             VALUES
-                (?, ?, ?)
+            (?, ?, ?, ?)
             `,
             [
                 product_id,
                 color,
+                size,
                 stock
             ]
         );
@@ -141,24 +182,31 @@ const ProductModel = {
     },
 
 
-    // Update variant
+    // =====================================================
+    // UPDATE VARIANT
+    // =====================================================
+
     async updateVariant(
         variantId,
         {
             color,
+            size,
             stock
         }
     ) {
+
         await db.query(
             `
             UPDATE product_variants
             SET
                 color = ?,
+                size = ?,
                 stock = ?
             WHERE id = ?
             `,
             [
                 color,
+                size,
                 stock,
                 variantId
             ]
@@ -166,8 +214,12 @@ const ProductModel = {
     },
 
 
-    // Delete variant
+    // =====================================================
+    // DELETE VARIANT
+    // =====================================================
+
     async deleteVariant(variantId) {
+
         const [result] = await db.query(
             `
             DELETE FROM product_variants
@@ -180,8 +232,12 @@ const ProductModel = {
     },
 
 
-    // Check category
+    // =====================================================
+    // FIND CATEGORY
+    // =====================================================
+
     async findCategoryById(categoryId) {
+
         const [rows] = await db.query(
             `
             SELECT
@@ -199,7 +255,10 @@ const ProductModel = {
     },
 
 
-    // Create product
+    // =====================================================
+    // CREATE PRODUCT
+    // =====================================================
+
     async create({
         category_id,
         name,
@@ -208,20 +267,21 @@ const ProductModel = {
         stock,
         image
     }) {
+
         const [result] = await db.query(
             `
             INSERT INTO products
-                (
-                    category_id,
-                    name,
-                    description,
-                    price,
-                    stock,
-                    image,
-                    status
-                )
+            (
+                category_id,
+                name,
+                description,
+                price,
+                stock,
+                image,
+                status
+            )
             VALUES
-                (?, ?, ?, ?, ?, ?, 'ACTIVE')
+            (?, ?, ?, ?, ?, ?, 'ACTIVE')
             `,
             [
                 category_id,
@@ -237,7 +297,10 @@ const ProductModel = {
     },
 
 
-    // Update product
+    // =====================================================
+    // UPDATE PRODUCT
+    // =====================================================
+
     async update(
         id,
         {
@@ -250,6 +313,7 @@ const ProductModel = {
             status
         }
     ) {
+
         await db.query(
             `
             UPDATE products
@@ -277,8 +341,12 @@ const ProductModel = {
     },
 
 
-    // Delete product
+    // =====================================================
+    // DELETE PRODUCT
+    // =====================================================
+
     async delete(id) {
+
         const [result] = await db.query(
             `
             DELETE FROM products
@@ -288,7 +356,145 @@ const ProductModel = {
         );
 
         return result.affectedRows;
+    },
+
+
+    // =====================================================
+    // COLOR IMAGES
+    // =====================================================
+
+    async findColorImagesByProductId(productId) {
+
+        const [rows] = await db.query(
+            `
+            SELECT
+                id,
+                product_id,
+                color,
+                image,
+                sort_order,
+                created_at
+            FROM product_color_images
+            WHERE product_id = ?
+            ORDER BY color ASC, sort_order ASC, id ASC
+            `,
+            [productId]
+        );
+
+        return rows;
+    },
+
+
+    // =====================================================
+    // GET COLOR IMAGES
+    // =====================================================
+
+    async findColorImages(
+        productId,
+        color
+    ) {
+
+        const [rows] = await db.query(
+            `
+            SELECT
+                id,
+                product_id,
+                color,
+                image,
+                sort_order,
+                created_at
+            FROM product_color_images
+            WHERE product_id = ?
+              AND LOWER(color) = LOWER(?)
+            ORDER BY sort_order ASC, id ASC
+            `,
+            [
+                productId,
+                color
+            ]
+        );
+
+        return rows;
+    },
+
+
+    // =====================================================
+    // CREATE COLOR IMAGE
+    // =====================================================
+
+    async createColorImage({
+        product_id,
+        color,
+        image,
+        sort_order
+    }) {
+
+        const [result] = await db.query(
+            `
+            INSERT INTO product_color_images
+            (
+                product_id,
+                color,
+                image,
+                sort_order
+            )
+            VALUES
+            (?, ?, ?, ?)
+            `,
+            [
+                product_id,
+                color,
+                image,
+                sort_order
+            ]
+        );
+
+        return result.insertId;
+    },
+
+
+    // =====================================================
+    // DELETE COLOR IMAGE
+    // =====================================================
+
+    async deleteColorImage(imageId) {
+
+        const [result] = await db.query(
+            `
+            DELETE FROM product_color_images
+            WHERE id = ?
+            `,
+            [imageId]
+        );
+
+        return result.affectedRows;
+    },
+
+
+    // =====================================================
+    // FIND COLOR IMAGE BY ID
+    // =====================================================
+
+    async findColorImageById(imageId) {
+
+        const [rows] = await db.query(
+            `
+            SELECT
+                id,
+                product_id,
+                color,
+                image,
+                sort_order
+            FROM product_color_images
+            WHERE id = ?
+            LIMIT 1
+            `,
+            [imageId]
+        );
+
+        return rows[0] || null;
     }
+
 };
 
 module.exports = ProductModel;
