@@ -9,7 +9,7 @@ const router = express.Router();
 // =====================================================
 // PUBLIC PRODUCT API
 // No authentication required
-// =====================================================
+// =============================================
 
 
 // GET ALL ACTIVE PRODUCTS
