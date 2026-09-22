@@ -14,6 +14,7 @@ const dashboardRoutes = require("./admin/routes/dashboardRoutes");
 const inventoryRoutes = require("./admin/routes/inventoryRoutes");
 const customerRoutes = require("./admin/routes/customerRoutes");
 const customerAuthRoutes = require("./customer/routes/customerauthRoutes");
+const publicProductRoutes = require("./public/routes/productRoutes");
 
 
 app.use(cors());
@@ -34,6 +35,9 @@ app.use("/api/admin/dashboard", dashboardRoutes);
 app.use("/api/admin/inventory", inventoryRoutes);
 app.use("/api/admin/customers", customerRoutes);
 app.use("/api/customer/auth", customerAuthRoutes);
+
+// Public Side
+app.use( "/api/public/products", publicProductRoutes);
 
 
 
