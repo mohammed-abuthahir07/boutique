@@ -2,30 +2,29 @@ const ProductModel = require("../models/productModel");
 
 const ProductController = {
 
+    // =====================================================
+    // GET ALL PUBLIC PRODUCTS
+    // =====================================================
+    // This API is only for the product listing page.
+    // It returns BASIC product information only.
+    //
+    // It does NOT return:
+    // - variants
+    // - sizes
+    // - variant stock
+    // - color images
+    // =====================================================
+
     async getAll(req, res) {
         try {
 
-            const products = await ProductModel.findAll();
-
-            const productsWithVariants = await Promise.all(
-                products.map(async (product) => {
-
-                    const variants =
-                        await ProductModel.findVariantsByProductId(
-                            product.id
-                        );
-
-                    return {
-                        ...product,
-                        variants
-                    };
-                })
-            );
+            const products =
+                await ProductModel.findAll();
 
             return res.json({
                 success: true,
-                count: productsWithVariants.length,
-                products: productsWithVariants
+                count: products.length,
+                products
             });
 
         } catch (error) {
@@ -43,39 +42,58 @@ const ProductController = {
         }
     },
 
+
+    // =====================================================
+    // GET SINGLE PUBLIC PRODUCT
+    // =====================================================
+    // This API is used when the customer clicks a product.
+    //
+    // It returns:
+    // - Basic product information
+    // - Variants
+    // - Color
+    // - Size
+    // - Variant stock
+    // - Color images
+    // =====================================================
+
     async getById(req, res) {
         try {
 
-            const productId = req.params.id;
+            const productId =
+                req.params.id;
 
+
+            // Validate product ID
             if (!/^\d+$/.test(productId)) {
+
                 return res.status(400).json({
                     success: false,
                     message: "Invalid product ID"
                 });
+
             }
 
+
             const product =
-                await ProductModel.findById(productId);
+                await ProductModel.findById(
+                    productId
+                );
+
 
             if (!product) {
+
                 return res.status(404).json({
                     success: false,
                     message: "Product not found"
                 });
+
             }
 
-            const variants =
-                await ProductModel.findVariantsByProductId(
-                    product.id
-                );
 
             return res.json({
                 success: true,
-                product: {
-                    ...product,
-                    variants
-                }
+                product
             });
 
         } catch (error) {
@@ -94,5 +112,6 @@ const ProductController = {
     }
 
 };
+
 
 module.exports = ProductController;

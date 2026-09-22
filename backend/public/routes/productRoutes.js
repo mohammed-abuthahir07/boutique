@@ -5,11 +5,25 @@ const ProductController =
 
 const router = express.Router();
 
-// Public API
-// No authentication middleware here.
 
-router.get("/", ProductController.getAll);
+// =====================================================
+// PUBLIC PRODUCT API
+// No authentication required
+// =====================================================
 
-router.get("/:id", ProductController.getById);
+
+// GET ALL ACTIVE PRODUCTS
+router.get(
+    "/",
+    ProductController.getAll
+);
+
+
+// GET SINGLE ACTIVE PRODUCT
+router.get(
+    "/:id",
+    ProductController.getById
+);
+
 
 module.exports = router;
