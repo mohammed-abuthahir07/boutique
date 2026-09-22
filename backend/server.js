@@ -16,7 +16,6 @@ const customerRoutes = require("./admin/routes/customerRoutes");
 const customerAuthRoutes = require("./customer/routes/customerauthRoutes");
 
 
-
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
