@@ -18,8 +18,6 @@ const OfferModel = {
                 updated_at
             FROM offers
             WHERE status = 'ACTIVE'
-              AND start_date <= NOW()
-              AND end_date >= NOW()
             ORDER BY created_at DESC
         `);
 
@@ -43,8 +41,6 @@ const OfferModel = {
             FROM offers
             WHERE id = ?
               AND status = 'ACTIVE'
-              AND start_date <= NOW()
-              AND end_date >= NOW()
             LIMIT 1
         `, [id]);
 
