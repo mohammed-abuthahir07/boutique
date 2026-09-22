@@ -3,7 +3,10 @@ const OrderModel = require("../models/orderModel");
 
 const OrderController = {
 
-    // CREATE ORDER FROM CART
+    // ==================================================
+    // CREATE ORDER FROM CUSTOMER CART
+    // ==================================================
+
     async createOrder(req, res) {
 
         const connection = await db.getConnection();
@@ -20,9 +23,9 @@ const OrderController = {
             } = req.body;
 
 
-            // -----------------------------
-            // Validate checkout information
-            // -----------------------------
+            // --------------------------------------------------
+            // VALIDATE CHECKOUT INFORMATION
+            // --------------------------------------------------
 
             if (
                 !name ||
@@ -30,6 +33,7 @@ const OrderController = {
                 !phone ||
                 !shipping_address
             ) {
+
                 return res.status(400).json({
                     success: false,
                     message:
@@ -38,10 +42,10 @@ const OrderController = {
             }
 
 
-            const cleanName = name.trim();
-            const cleanEmail = email.trim().toLowerCase();
-            const cleanPhone = phone.trim();
-            const cleanAddress = shipping_address.trim();
+            const cleanName = String(name).trim();
+            const cleanEmail = String(email).trim().toLowerCase();
+            const cleanPhone = String(phone).trim();
+            const cleanAddress = String(shipping_address).trim();
 
 
             if (cleanName.length < 2) {
@@ -50,10 +54,10 @@ const OrderController = {
                     success: false,
                     message: "Name must be at least 2 characters"
                 });
-
             }
 
 
+            // FIXED EMAIL REGEX
             const emailRegex =
                 /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -63,7 +67,6 @@ const OrderController = {
                     success: false,
                     message: "Please enter a valid email address"
                 });
-
             }
 
 
@@ -73,7 +76,6 @@ const OrderController = {
                     success: false,
                     message: "Phone number is required"
                 });
-
             }
 
 
@@ -84,20 +86,19 @@ const OrderController = {
                     message:
                         "Shipping address must be at least 5 characters"
                 });
-
             }
 
 
-            // -----------------------------
-            // Start transaction
-            // -----------------------------
+            // --------------------------------------------------
+            // START TRANSACTION
+            // --------------------------------------------------
 
             await connection.beginTransaction();
 
 
-            // -----------------------------
-            // Get customer's cart
-            // -----------------------------
+            // --------------------------------------------------
+            // GET ALL CUSTOMER CART ITEMS
+            // --------------------------------------------------
 
             const cartItems =
                 await OrderModel.getCartItemsForOrder(
@@ -106,6 +107,7 @@ const OrderController = {
                 );
 
 
+            // Cart must contain at least one item
             if (!cartItems.length) {
 
                 await connection.rollback();
@@ -114,13 +116,13 @@ const OrderController = {
                     success: false,
                     message: "Your cart is empty"
                 });
-
             }
 
 
-            // -----------------------------
-            // Validate stock and calculate total
-            // -----------------------------
+            // --------------------------------------------------
+            // VALIDATE ALL CART ITEMS
+            // CALCULATE TOTAL FROM DATABASE
+            // --------------------------------------------------
 
             let totalAmount = 0;
 
@@ -128,6 +130,10 @@ const OrderController = {
 
 
             for (const item of cartItems) {
+
+                // ----------------------------------------------
+                // PRODUCT STATUS
+                // ----------------------------------------------
 
                 if (item.product_status !== "ACTIVE") {
 
@@ -138,9 +144,12 @@ const OrderController = {
                         message:
                             `${item.product_name} is no longer available`
                     });
-
                 }
 
+
+                // ----------------------------------------------
+                // CATEGORY STATUS
+                // ----------------------------------------------
 
                 if (item.category_status !== "ACTIVE") {
 
@@ -151,35 +160,47 @@ const OrderController = {
                         message:
                             `${item.product_name} category is no longer available`
                     });
-
                 }
 
 
-                if (item.variant_stock <= 0) {
+                // ----------------------------------------------
+                // VARIANT STOCK
+                // ----------------------------------------------
+
+                if (Number(item.variant_stock) <= 0) {
 
                     await connection.rollback();
 
                     return res.status(400).json({
                         success: false,
                         message:
-                            `${item.product_name} (${item.color}) is out of stock`
+                            `${item.product_name} (${item.color} / ${item.size}) is out of stock`
                     });
-
                 }
 
 
-                if (item.quantity > item.variant_stock) {
+                // ----------------------------------------------
+                // REQUESTED QUANTITY VS STOCK
+                // ----------------------------------------------
+
+                if (
+                    Number(item.quantity) >
+                    Number(item.variant_stock)
+                ) {
 
                     await connection.rollback();
 
                     return res.status(400).json({
                         success: false,
                         message:
-                            `Only ${item.variant_stock} ${item.product_name} (${item.color}) available`
+                            `Only ${item.variant_stock} ${item.product_name} (${item.color} / ${item.size}) available`
                     });
-
                 }
 
+
+                // ----------------------------------------------
+                // CALCULATE PRICE FROM DATABASE
+                // ----------------------------------------------
 
                 const price = Number(item.price);
                 const quantity = Number(item.quantity);
@@ -190,73 +211,101 @@ const OrderController = {
                 totalAmount += subtotal;
 
 
+                // ----------------------------------------------
+                // PREPARE ORDER ITEM
+                // ----------------------------------------------
+
                 orderItems.push({
+
                     productId: item.product_id,
+
                     variantId: item.variant_id,
+
                     variantColor: item.color,
+
+                    variantSize: item.size,
+
                     productName: item.product_name,
+
                     price,
+
                     quantity,
+
                     subtotal
                 });
-
             }
 
 
-            // -----------------------------
-            // Generate order number
-            // -----------------------------
+            // --------------------------------------------------
+            // GENERATE ORDER NUMBER
+            // --------------------------------------------------
 
-            const timestamp =
-                Date.now();
+            const timestamp = Date.now();
 
             const orderId =
                 `ORD-${timestamp}`;
 
 
-            // -----------------------------
-            // Create order
-            // -----------------------------
+            // --------------------------------------------------
+            // CREATE ORDER
+            // --------------------------------------------------
 
             const databaseOrderId =
                 await OrderModel.createOrder(
                     connection,
                     {
                         customerId,
+
                         orderId,
+
                         customerName: cleanName,
+
                         customerEmail: cleanEmail,
+
                         customerPhone: cleanPhone,
+
                         shippingAddress: cleanAddress,
+
                         totalAmount:
                             totalAmount.toFixed(2)
                     }
                 );
 
 
-            // -----------------------------
-            // Create order items
-            // + reduce variant stock
-            // -----------------------------
+            // --------------------------------------------------
+            // CREATE EVERY ORDER ITEM
+            // AND REDUCE EXACT VARIANT STOCK
+            // --------------------------------------------------
 
             for (const item of orderItems) {
 
+                // Create order item
                 await OrderModel.createOrderItem(
                     connection,
                     {
                         orderId: databaseOrderId,
+
                         productId: item.productId,
+
                         variantId: item.variantId,
+
                         variantColor: item.variantColor,
+
+                        variantSize: item.variantSize,
+
                         productName: item.productName,
+
                         price: item.price,
+
                         quantity: item.quantity,
+
                         subtotal:
                             item.subtotal.toFixed(2)
                     }
                 );
 
 
+                // Reduce exact variant stock
                 const affectedRows =
                     await OrderModel.reduceVariantStock(
                         connection,
@@ -268,17 +317,15 @@ const OrderController = {
                 if (affectedRows === 0) {
 
                     throw new Error(
-                        `Stock update failed for ${item.productName} (${item.variantColor})`
+                        `Stock update failed for ${item.productName} (${item.variantColor} / ${item.variantSize})`
                     );
-
                 }
-
             }
 
 
-            // -----------------------------
-            // Clear customer's cart
-            // -----------------------------
+            // --------------------------------------------------
+            // CLEAR ALL CUSTOMER CART ITEMS
+            // --------------------------------------------------
 
             await OrderModel.clearCart(
                 customerId,
@@ -286,16 +333,16 @@ const OrderController = {
             );
 
 
-            // -----------------------------
-            // Commit transaction
-            // -----------------------------
+            // --------------------------------------------------
+            // COMMIT EVERYTHING
+            // --------------------------------------------------
 
             await connection.commit();
 
 
-            // -----------------------------
-            // Response
-            // -----------------------------
+            // --------------------------------------------------
+            // SUCCESS RESPONSE
+            // --------------------------------------------------
 
             return res.status(201).json({
 
@@ -320,12 +367,28 @@ const OrderController = {
                         cleanAddress,
 
                     items: orderItems.map(item => ({
-                        product_id: item.productId,
-                        variant_id: item.variantId,
-                        color: item.variantColor,
-                        product_name: item.productName,
-                        price: item.price,
-                        quantity: item.quantity,
+
+                        product_id:
+                            item.productId,
+
+                        variant_id:
+                            item.variantId,
+
+                        color:
+                            item.variantColor,
+
+                        size:
+                            item.variantSize,
+
+                        product_name:
+                            item.productName,
+
+                        price:
+                            item.price,
+
+                        quantity:
+                            item.quantity,
+
                         subtotal:
                             item.subtotal.toFixed(2)
                     })),
@@ -333,18 +396,22 @@ const OrderController = {
                     total_amount:
                         totalAmount.toFixed(2),
 
-                    order_status: "PENDING"
-
+                    order_status:
+                        "PENDING"
                 }
-
             });
 
 
         } catch (error) {
 
+            // --------------------------------------------------
+            // ROLLBACK EVERYTHING
+            // --------------------------------------------------
+
             try {
                 await connection.rollback();
             } catch (rollbackError) {
+
                 console.error(
                     "Rollback error:",
                     rollbackError
@@ -367,19 +434,20 @@ const OrderController = {
 
                 error:
                     error.message
-
             });
+
 
         } finally {
 
             connection.release();
-
         }
-
     },
 
 
+    // ==================================================
     // GET MY ORDERS
+    // ==================================================
+
     async getMyOrders(req, res) {
 
         try {
@@ -398,10 +466,10 @@ const OrderController = {
 
                 success: true,
 
-                count: orders.length,
+                count:
+                    orders.length,
 
                 orders
-
             });
 
 
@@ -422,15 +490,15 @@ const OrderController = {
 
                 error:
                     error.message
-
             });
-
         }
-
     },
 
 
-    // GET ONE ORDER
+    // ==================================================
+    // GET ONE MY ORDER
+    // ==================================================
+
     async getMyOrderById(req, res) {
 
         try {
@@ -450,9 +518,7 @@ const OrderController = {
 
                     message:
                         "Invalid order ID"
-
                 });
-
             }
 
 
@@ -471,9 +537,7 @@ const OrderController = {
 
                     message:
                         "Order not found"
-
                 });
-
             }
 
 
@@ -482,7 +546,6 @@ const OrderController = {
                 success: true,
 
                 order
-
             });
 
 
@@ -503,14 +566,10 @@ const OrderController = {
 
                 error:
                     error.message
-
             });
-
         }
-
     }
 
 };
-
 
 module.exports = OrderController;

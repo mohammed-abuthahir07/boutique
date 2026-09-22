@@ -2,7 +2,10 @@ const db = require("../../config/database");
 
 const OrderModel = {
 
-    // Get customer's cart items with current product/variant information
+    // --------------------------------------------------
+    // GET CUSTOMER CART ITEMS FOR CHECKOUT
+    // --------------------------------------------------
+
     async getCartItemsForOrder(customerId, connection) {
 
         const [rows] = await connection.query(`
@@ -19,6 +22,7 @@ const OrderModel = {
                 c.status AS category_status,
 
                 pv.color,
+                pv.size,
                 pv.stock AS variant_stock
 
             FROM customer_cart_items ci
@@ -34,6 +38,7 @@ const OrderModel = {
 
             INNER JOIN product_variants pv
                 ON ci.variant_id = pv.id
+                AND pv.product_id = ci.product_id
 
             WHERE cc.customer_id = ?
 
@@ -44,7 +49,10 @@ const OrderModel = {
     },
 
 
-    // Create order
+    // --------------------------------------------------
+    // CREATE ORDER
+    // --------------------------------------------------
+
     async createOrder(connection, {
         customerId,
         orderId,
@@ -82,12 +90,16 @@ const OrderModel = {
     },
 
 
-    // Create order item
+    // --------------------------------------------------
+    // CREATE ORDER ITEM
+    // --------------------------------------------------
+
     async createOrderItem(connection, {
         orderId,
         productId,
         variantId,
         variantColor,
+        variantSize,
         productName,
         price,
         quantity,
@@ -101,17 +113,19 @@ const OrderModel = {
                 product_id,
                 variant_id,
                 variant_color,
+                variant_size,
                 product_name,
                 price,
                 quantity,
                 subtotal
             )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
         `, [
             orderId,
             productId,
             variantId,
             variantColor,
+            variantSize,
             productName,
             price,
             quantity,
@@ -122,7 +136,10 @@ const OrderModel = {
     },
 
 
-    // Reduce selected variant stock
+    // --------------------------------------------------
+    // REDUCE EXACT VARIANT STOCK
+    // --------------------------------------------------
+
     async reduceVariantStock(
         connection,
         variantId,
@@ -144,7 +161,10 @@ const OrderModel = {
     },
 
 
-    // Clear customer's cart
+    // --------------------------------------------------
+    // CLEAR CUSTOMER CART
+    // --------------------------------------------------
+
     async clearCart(customerId, connection) {
 
         const [result] = await connection.query(`
@@ -161,7 +181,10 @@ const OrderModel = {
     },
 
 
-    // Get created order
+    // --------------------------------------------------
+    // GET CREATED ORDER
+    // --------------------------------------------------
+
     async findOrderById(orderId, customerId, connection) {
 
         const [rows] = await connection.query(`
@@ -190,7 +213,10 @@ const OrderModel = {
     },
 
 
-    // Get order items
+    // --------------------------------------------------
+    // GET ORDER ITEMS
+    // --------------------------------------------------
+
     async findOrderItems(orderId, connection) {
 
         const [rows] = await connection.query(`
@@ -199,6 +225,7 @@ const OrderModel = {
                 product_id,
                 variant_id,
                 variant_color,
+                variant_size,
                 product_name,
                 price,
                 quantity,
@@ -213,7 +240,10 @@ const OrderModel = {
     },
 
 
-    // Get customer's orders
+    // --------------------------------------------------
+    // GET CUSTOMER ORDERS
+    // --------------------------------------------------
+
     async findOrdersByCustomerId(customerId) {
 
         const [rows] = await db.query(`
@@ -237,7 +267,10 @@ const OrderModel = {
     },
 
 
-    // Get one customer order
+    // --------------------------------------------------
+    // GET ONE CUSTOMER ORDER
+    // --------------------------------------------------
+
     async findCustomerOrderById(
         customerId,
         orderId
@@ -275,6 +308,7 @@ const OrderModel = {
                 product_id,
                 variant_id,
                 variant_color,
+                variant_size,
                 product_name,
                 price,
                 quantity,
