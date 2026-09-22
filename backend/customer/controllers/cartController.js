@@ -2,34 +2,51 @@ const CartModel = require("../models/cartModel");
 
 const CartController = {
 
+    // =====================================================
+    // ADD TO CART
+    // =====================================================
+
     async addToCart(req, res) {
 
         try {
 
+            // NEVER take customer_id from frontend
             const customerId = req.customer.id;
 
-            const productId = req.body.product_id;
-            const variantId = req.body.variant_id;
-            const quantity = Number(req.body.quantity);
+            const productId =
+                Number(req.body.product_id);
 
-            if (!productId || !variantId || !quantity) {
-                return res.status(400).json({
-                    success: false,
-                    message:
-                        "product_id, variant_id and quantity are required"
-                });
-            }
+            const variantId =
+                Number(req.body.variant_id);
+
+            const quantity =
+                Number(req.body.quantity);
+
+
+            // =================================================
+            // VALIDATION
+            // =================================================
 
             if (
+                !Number.isInteger(productId) ||
+                productId <= 0 ||
+                !Number.isInteger(variantId) ||
+                variantId <= 0 ||
                 !Number.isInteger(quantity) ||
                 quantity <= 0
             ) {
+
                 return res.status(400).json({
                     success: false,
                     message:
-                        "Quantity must be a positive integer"
+                        "product_id, variant_id and a valid quantity are required"
                 });
             }
+
+
+            // =================================================
+            // FIND EXACT PRODUCT VARIANT
+            // =================================================
 
             const product =
                 await CartModel.findProductVariant(
@@ -37,15 +54,25 @@ const CartController = {
                     variantId
                 );
 
+
             if (!product) {
+
                 return res.status(404).json({
                     success: false,
                     message:
-                        "Product or selected color not found"
+                        "Product or selected variant not found"
                 });
             }
 
-            if (product.product_status !== "ACTIVE") {
+
+            // =================================================
+            // PRODUCT STATUS
+            // =================================================
+
+            if (
+                product.product_status !== "ACTIVE"
+            ) {
+
                 return res.status(400).json({
                     success: false,
                     message:
@@ -53,7 +80,15 @@ const CartController = {
                 });
             }
 
-            if (product.category_status !== "ACTIVE") {
+
+            // =================================================
+            // CATEGORY STATUS
+            // =================================================
+
+            if (
+                product.category_status !== "ACTIVE"
+            ) {
+
                 return res.status(400).json({
                     success: false,
                     message:
@@ -61,28 +96,51 @@ const CartController = {
                 });
             }
 
-            if (product.variant_stock <= 0) {
+
+            // =================================================
+            // VARIANT STOCK
+            // =================================================
+
+            if (
+                product.variant_stock <= 0
+            ) {
+
                 return res.status(400).json({
                     success: false,
                     message:
-                        "Selected color is out of stock"
+                        `Selected ${product.color} / ${product.size} variant is out of stock`
                 });
             }
 
-            if (quantity > product.variant_stock) {
+
+            if (
+                quantity > product.variant_stock
+            ) {
+
                 return res.status(400).json({
                     success: false,
                     message:
-                        `Only ${product.variant_stock} item(s) available`
+                        `Only ${product.variant_stock} item(s) available for ${product.color} / ${product.size}`
                 });
             }
+
+
+            // =================================================
+            // FIND CUSTOMER CART
+            // =================================================
 
             let cart =
                 await CartModel.findCartByCustomerId(
                     customerId
                 );
 
+
+            // =================================================
+            // CREATE CART IF NOT EXISTS
+            // =================================================
+
             if (!cart) {
+
                 const cartId =
                     await CartModel.createCart(
                         customerId
@@ -93,6 +151,11 @@ const CartController = {
                 };
             }
 
+
+            // =================================================
+            // CHECK EXISTING SAME VARIANT
+            // =================================================
+
             const existingItem =
                 await CartModel.findCartItem(
                     cart.id,
@@ -100,31 +163,57 @@ const CartController = {
                     variantId
                 );
 
+
+            // =================================================
+            // UPDATE EXISTING ITEM
+            // =================================================
+
             if (existingItem) {
 
                 const newQuantity =
-                    existingItem.quantity + quantity;
+                    Number(existingItem.quantity) +
+                    quantity;
 
-                if (newQuantity > product.variant_stock) {
+
+                if (
+                    newQuantity >
+                    product.variant_stock
+                ) {
+
                     return res.status(400).json({
                         success: false,
                         message:
-                            `Only ${product.variant_stock} item(s) available`
+                            `Only ${product.variant_stock} item(s) available for ${product.color} / ${product.size}`
                     });
                 }
+
 
                 await CartModel.updateCartItemQuantity(
                     existingItem.id,
                     newQuantity
                 );
 
+
                 return res.json({
                     success: true,
                     message:
                         "Cart quantity updated successfully",
-                    quantity: newQuantity
+
+                    cart_item: {
+                        id: existingItem.id,
+                        product_id: product.product_id,
+                        variant_id: product.variant_id,
+                        color: product.color,
+                        size: product.size,
+                        quantity: newQuantity
+                    }
                 });
             }
+
+
+            // =================================================
+            // ADD NEW CART ITEM
+            // =================================================
 
             const cartItemId =
                 await CartModel.addCartItem(
@@ -134,17 +223,24 @@ const CartController = {
                     quantity
                 );
 
+
             return res.status(201).json({
+
                 success: true,
+
                 message:
-                    "Product added to cart successfully",
+                    "Product variant added to cart successfully",
+
                 cart_item: {
                     id: cartItemId,
-                    product_id: Number(productId),
-                    variant_id: Number(variantId),
+                    product_id: product.product_id,
+                    variant_id: product.variant_id,
+                    color: product.color,
+                    size: product.size,
                     quantity
                 }
             });
+
 
         } catch (error) {
 
@@ -162,55 +258,106 @@ const CartController = {
         }
     },
 
+
+    // =====================================================
+    // GET CART
+    // =====================================================
+
     async getCart(req, res) {
 
         try {
 
-            const customerId = req.customer.id;
+            // Customer comes from JWT
+            const customerId =
+                req.customer.id;
+
 
             const items =
                 await CartModel.getCartItems(
                     customerId
                 );
 
+
             let subtotal = 0;
 
-            const cartItems = items.map(item => {
 
-                const itemSubtotal =
-                    Number(item.price) *
-                    Number(item.quantity);
+            const cartItems =
+                items.map(item => {
 
-                subtotal += itemSubtotal;
+                    const itemSubtotal =
+                        Number(item.price) *
+                        Number(item.quantity);
 
-                return {
-                    cart_item_id: item.cart_item_id,
-                    product_id: item.product_id,
-                    variant_id: item.variant_id,
-                    product_name: item.product_name,
-                    color: item.color,
-                    image: item.image,
-                    price: Number(item.price),
-                    quantity: item.quantity,
-                    available_stock: item.available_stock,
-                    subtotal: itemSubtotal.toFixed(2)
-                };
-            });
+
+                    subtotal += itemSubtotal;
+
+
+                    return {
+
+                        cart_item_id:
+                            item.cart_item_id,
+
+                        product_id:
+                            item.product_id,
+
+                        variant_id:
+                            item.variant_id,
+
+                        product_name:
+                            item.product_name,
+
+                        color:
+                            item.color,
+
+                        size:
+                            item.size,
+
+                        image:
+                            item.image,
+
+                        price:
+                            Number(item.price),
+
+                        quantity:
+                            Number(item.quantity),
+
+                        available_stock:
+                            Number(item.available_stock),
+
+                        subtotal:
+                            itemSubtotal.toFixed(2)
+                    };
+                });
+
 
             return res.json({
+
                 success: true,
+
                 cart: {
-                    items: cartItems,
-                    item_count: cartItems.length,
-                    total_quantity: cartItems.reduce(
-                        (total, item) =>
-                            total + Number(item.quantity),
-                        0
-                    ),
-                    subtotal: subtotal.toFixed(2),
-                    total: subtotal.toFixed(2)
+
+                    items:
+                        cartItems,
+
+                    item_count:
+                        cartItems.length,
+
+                    total_quantity:
+                        cartItems.reduce(
+                            (total, item) =>
+                                total +
+                                Number(item.quantity),
+                            0
+                        ),
+
+                    subtotal:
+                        subtotal.toFixed(2),
+
+                    total:
+                        subtotal.toFixed(2)
                 }
             });
+
 
         } catch (error) {
 
@@ -228,18 +375,47 @@ const CartController = {
         }
     },
 
+
+    // =====================================================
+    // UPDATE CART QUANTITY
+    // =====================================================
+
     async updateQuantity(req, res) {
 
         try {
 
-            const customerId = req.customer.id;
-            const cartItemId = req.params.itemId;
-            const quantity = Number(req.body.quantity);
+            const customerId =
+                req.customer.id;
+
+            const cartItemId =
+                Number(req.params.itemId);
+
+            const quantity =
+                Number(req.body.quantity);
+
+
+            // =================================================
+            // VALIDATION
+            // =================================================
+
+            if (
+                !Number.isInteger(cartItemId) ||
+                cartItemId <= 0
+            ) {
+
+                return res.status(400).json({
+                    success: false,
+                    message:
+                        "Invalid cart item ID"
+                });
+            }
+
 
             if (
                 !Number.isInteger(quantity) ||
                 quantity <= 0
             ) {
+
                 return res.status(400).json({
                     success: false,
                     message:
@@ -247,13 +423,20 @@ const CartController = {
                 });
             }
 
+
+            // =================================================
+            // FIND CART ITEM
+            // =================================================
+
             const cartItem =
                 await CartModel.findCartItemById(
                     customerId,
                     cartItemId
                 );
 
+
             if (!cartItem) {
+
                 return res.status(404).json({
                     success: false,
                     message:
@@ -261,13 +444,20 @@ const CartController = {
                 });
             }
 
+
+            // =================================================
+            // FIND CURRENT VARIANT STOCK
+            // =================================================
+
             const product =
                 await CartModel.findProductVariant(
                     cartItem.product_id,
                     cartItem.variant_id
                 );
 
+
             if (!product) {
+
                 return res.status(404).json({
                     success: false,
                     message:
@@ -275,25 +465,87 @@ const CartController = {
                 });
             }
 
-            if (quantity > product.variant_stock) {
+
+            if (
+                product.product_status !== "ACTIVE"
+            ) {
+
                 return res.status(400).json({
                     success: false,
                     message:
-                        `Only ${product.variant_stock} item(s) available`
+                        "This product is no longer available"
                 });
             }
+
+
+            if (
+                product.category_status !== "ACTIVE"
+            ) {
+
+                return res.status(400).json({
+                    success: false,
+                    message:
+                        "This product category is no longer available"
+                });
+            }
+
+
+            // =================================================
+            // CHECK VARIANT STOCK
+            // =================================================
+
+            if (
+                product.variant_stock <= 0
+            ) {
+
+                return res.status(400).json({
+                    success: false,
+                    message:
+                        `Selected ${product.color} / ${product.size} variant is out of stock`
+                });
+            }
+
+
+            if (
+                quantity >
+                product.variant_stock
+            ) {
+
+                return res.status(400).json({
+                    success: false,
+                    message:
+                        `Only ${product.variant_stock} item(s) available for ${product.color} / ${product.size}`
+                });
+            }
+
+
+            // =================================================
+            // UPDATE
+            // =================================================
 
             await CartModel.updateCartItemQuantity(
                 cartItem.id,
                 quantity
             );
 
+
             return res.json({
+
                 success: true,
+
                 message:
                     "Cart quantity updated successfully",
-                quantity
+
+                cart_item: {
+                    id: cartItem.id,
+                    product_id: cartItem.product_id,
+                    variant_id: cartItem.variant_id,
+                    color: product.color,
+                    size: product.size,
+                    quantity
+                }
             });
+
 
         } catch (error) {
 
@@ -311,12 +563,34 @@ const CartController = {
         }
     },
 
+
+    // =====================================================
+    // REMOVE CART ITEM
+    // =====================================================
+
     async removeItem(req, res) {
 
         try {
 
-            const customerId = req.customer.id;
-            const cartItemId = req.params.itemId;
+            const customerId =
+                req.customer.id;
+
+            const cartItemId =
+                Number(req.params.itemId);
+
+
+            if (
+                !Number.isInteger(cartItemId) ||
+                cartItemId <= 0
+            ) {
+
+                return res.status(400).json({
+                    success: false,
+                    message:
+                        "Invalid cart item ID"
+                });
+            }
+
 
             const affectedRows =
                 await CartModel.deleteCartItem(
@@ -324,7 +598,9 @@ const CartController = {
                     cartItemId
                 );
 
+
             if (affectedRows === 0) {
+
                 return res.status(404).json({
                     success: false,
                     message:
@@ -332,11 +608,13 @@ const CartController = {
                 });
             }
 
+
             return res.json({
                 success: true,
                 message:
-                    "Product removed from cart"
+                    "Product variant removed from cart"
             });
+
 
         } catch (error) {
 
@@ -355,5 +633,6 @@ const CartController = {
     }
 
 };
+
 
 module.exports = CartController;

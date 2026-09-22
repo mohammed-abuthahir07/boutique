@@ -2,7 +2,12 @@ const db = require("../../config/database");
 
 const CartModel = {
 
+    // =====================================================
+    // FIND CUSTOMER CART
+    // =====================================================
+
     async findCartByCustomerId(customerId) {
+
         const [rows] = await db.query(`
             SELECT
                 id,
@@ -17,7 +22,13 @@ const CartModel = {
         return rows[0];
     },
 
+
+    // =====================================================
+    // CREATE CUSTOMER CART
+    // =====================================================
+
     async createCart(customerId) {
+
         const [result] = await db.query(`
             INSERT INTO customer_carts
             (
@@ -29,18 +40,40 @@ const CartModel = {
         return result.insertId;
     },
 
+
+    // =====================================================
+    // FIND PRODUCT + EXACT VARIANT
+    // =====================================================
+    // Variant is identified by:
+    //
+    // product_id
+    // +
+    // variant_id
+    //
+    // Variant contains:
+    // color
+    // size
+    // stock
+    // =====================================================
+
     async findProductVariant(productId, variantId) {
+
         const [rows] = await db.query(`
             SELECT
                 p.id AS product_id,
                 p.name,
+                p.description,
                 p.price,
+                p.image,
                 p.status AS product_status,
 
+                c.id AS category_id,
+                c.name AS category_name,
                 c.status AS category_status,
 
                 pv.id AS variant_id,
                 pv.color,
+                pv.size,
                 pv.stock AS variant_stock
 
             FROM products p
@@ -53,6 +86,7 @@ const CartModel = {
 
             WHERE p.id = ?
               AND pv.id = ?
+
             LIMIT 1
         `, [
             productId,
@@ -62,7 +96,17 @@ const CartModel = {
         return rows[0];
     },
 
-    async findCartItem(cartId, productId, variantId) {
+
+    // =====================================================
+    // FIND EXISTING CART ITEM
+    // =====================================================
+
+    async findCartItem(
+        cartId,
+        productId,
+        variantId
+    ) {
+
         const [rows] = await db.query(`
             SELECT
                 id,
@@ -86,12 +130,18 @@ const CartModel = {
         return rows[0];
     },
 
+
+    // =====================================================
+    // ADD ITEM TO CART
+    // =====================================================
+
     async addCartItem(
         cartId,
         productId,
         variantId,
         quantity
     ) {
+
         const [result] = await db.query(`
             INSERT INTO customer_cart_items
             (
@@ -111,13 +161,20 @@ const CartModel = {
         return result.insertId;
     },
 
+
+    // =====================================================
+    // UPDATE CART ITEM QUANTITY
+    // =====================================================
+
     async updateCartItemQuantity(
         cartItemId,
         quantity
     ) {
+
         await db.query(`
             UPDATE customer_cart_items
-            SET quantity = ?
+            SET
+                quantity = ?
             WHERE id = ?
         `, [
             quantity,
@@ -125,7 +182,23 @@ const CartModel = {
         ]);
     },
 
+
+    // =====================================================
+    // GET CUSTOMER CART
+    // =====================================================
+    // Returns:
+    // Product
+    // Color
+    // Size
+    // Variant
+    // Stock
+    // Quantity
+    // Price
+    // Subtotal
+    // =====================================================
+
     async getCartItems(customerId) {
+
         const [rows] = await db.query(`
             SELECT
                 ci.id AS cart_item_id,
@@ -139,9 +212,12 @@ const CartModel = {
                 p.image,
 
                 pv.color,
+                pv.size,
                 pv.stock AS available_stock,
 
-                (p.price * ci.quantity) AS subtotal
+                (
+                    p.price * ci.quantity
+                ) AS subtotal
 
             FROM customer_cart_items ci
 
@@ -162,7 +238,18 @@ const CartModel = {
         return rows;
     },
 
-    async findCartItemById(customerId, cartItemId) {
+
+    // =====================================================
+    // FIND CART ITEM BY ID
+    // =====================================================
+    // Customer ownership is checked here.
+    // =====================================================
+
+    async findCartItemById(
+        customerId,
+        cartItemId
+    ) {
+
         const [rows] = await db.query(`
             SELECT
                 ci.id,
@@ -188,7 +275,16 @@ const CartModel = {
         return rows[0];
     },
 
-    async deleteCartItem(customerId, cartItemId) {
+
+    // =====================================================
+    // DELETE CART ITEM
+    // =====================================================
+
+    async deleteCartItem(
+        customerId,
+        cartItemId
+    ) {
+
         const [result] = await db.query(`
             DELETE ci
             FROM customer_cart_items ci
@@ -206,7 +302,13 @@ const CartModel = {
         return result.affectedRows;
     },
 
+
+    // =====================================================
+    // CLEAR CUSTOMER CART
+    // =====================================================
+
     async clearCart(customerId) {
+
         const [result] = await db.query(`
             DELETE ci
             FROM customer_cart_items ci
