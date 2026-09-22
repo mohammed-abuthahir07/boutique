@@ -1,0 +1,124 @@
+.categories-page {
+  padding-bottom: 96px;
+}
+
+.categories-header {
+  background-color: var(--color-bg-secondary);
+  border-bottom: 1px solid var(--color-border);
+  padding: 48px 0;
+  margin-bottom: 48px;
+  text-align: center;
+}
+
+.categories-title {
+  font-size: 2.8rem;
+  color: var(--color-primary);
+  margin-bottom: 8px;
+}
+
+.categories-subtitle {
+  font-size: 1rem;
+  color: var(--color-text-muted);
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.categories-grid-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 28px;
+}
+
+.cat-card {
+  position: relative;
+  height: 420px;
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  display: flex;
+  align-items: flex-end;
+  padding: 32px;
+  transition: transform var(--transition-normal), box-shadow var(--transition-normal);
+}
+
+.cat-card:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--shadow-xl);
+}
+
+.cat-card-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(18, 18, 18, 0.88) 0%, rgba(18, 18, 18, 0.3) 60%, transparent 100%);
+  transition: background 0.3s ease;
+}
+
+.cat-card:hover .cat-card-overlay {
+  background: linear-gradient(to top, rgba(18, 18, 18, 0.94) 0%, rgba(18, 18, 18, 0.45) 70%, transparent 100%);
+}
+
+.cat-card-content {
+  position: relative;
+  z-index: 2;
+  color: #ffffff;
+}
+
+.cat-piece-count {
+  display: block;
+  font-size: 0.72rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--color-accent);
+  margin-bottom: 6px;
+  font-weight: 600;
+}
+
+.cat-card-name {
+  font-size: 2rem;
+  color: #ffffff;
+  margin-bottom: 14px;
+}
+
+.cat-card-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #ffffff;
+  font-weight: 600;
+  transition: color var(--transition-fast);
+}
+
+.cat-card:hover .cat-card-btn {
+  color: var(--color-accent);
+}
+
+.no-cat-state {
+  text-align: center;
+  padding: 64px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+@media (max-width: 992px) {
+  .categories-grid-cards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .categories-grid-cards {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .cat-card {
+    height: 320px;
+  }
+}

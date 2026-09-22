@@ -1,0 +1,110 @@
+.contact-page {
+  padding-bottom: 96px;
+}
+
+.contact-header {
+  background-color: var(--color-bg-secondary);
+  border-bottom: 1px solid var(--color-border);
+  padding: 48px 0;
+  margin-bottom: 48px;
+  text-align: center;
+}
+
+.contact-title {
+  font-size: 2.8rem;
+  color: var(--color-primary);
+  margin-bottom: 8px;
+}
+
+.contact-subtitle {
+  font-size: 1rem;
+  color: var(--color-text-muted);
+  max-width: 620px;
+  margin: 0 auto;
+}
+
+.contact-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.35fr;
+  gap: 40px;
+  align-items: start;
+}
+
+.card-title-sm {
+  font-size: 1.3rem;
+  color: var(--color-primary);
+}
+
+.atelier-info-card {
+  padding: 36px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.contact-block {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.contact-block-icon {
+  color: var(--color-accent);
+  flex-shrink: 0;
+  margin-top: 4px;
+}
+
+.contact-block h4 {
+  font-family: var(--font-sans);
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--color-primary);
+  margin-bottom: 4px;
+}
+
+.contact-block p {
+  font-size: 0.88rem;
+  color: var(--color-text-muted);
+  line-height: 1.5;
+}
+
+.contact-form-card {
+  padding: 36px;
+}
+
+.form-row-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.contact-success-box {
+  text-align: center;
+  padding: 48px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.contact-success-box h3 {
+  font-size: 1.6rem;
+  color: var(--color-primary);
+}
+
+.contact-success-box p {
+  font-size: 0.95rem;
+  color: var(--color-text-muted);
+  margin-bottom: 12px;
+}
+
+@media (max-width: 850px) {
+  .contact-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .form-row-2 {
+    grid-template-columns: 1fr;
+  }
+}

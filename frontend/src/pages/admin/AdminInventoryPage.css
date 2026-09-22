@@ -1,0 +1,117 @@
+.admin-inventory-page {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.inventory-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
+.inv-stat-card {
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.inv-stat-icon-wrap {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.inv-stat-icon-wrap.primary {
+  background-color: #f0f0f0;
+  color: var(--color-primary);
+}
+
+.inv-stat-icon-wrap.success {
+  background-color: var(--color-success-bg);
+  color: var(--color-success);
+}
+
+.inv-stat-icon-wrap.warning {
+  background-color: var(--color-warning-bg);
+  color: var(--color-warning);
+}
+
+.inv-stat-icon-wrap.danger {
+  background-color: var(--color-danger-bg);
+  color: var(--color-danger);
+}
+
+.inv-stat-lbl {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--color-text-light);
+  display: block;
+  margin-bottom: 2px;
+}
+
+.inv-stat-val {
+  font-family: var(--font-serif);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-primary);
+}
+
+.stock-filters-row {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.stock-filter-btn {
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  background-color: #ffffff;
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  transition: all var(--transition-fast);
+}
+
+.stock-filter-btn:hover {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+
+.stock-filter-btn.active {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+  color: #ffffff;
+}
+
+.inventory-prod-link {
+  font-weight: 600;
+  color: var(--color-primary);
+}
+
+.inventory-prod-link:hover {
+  color: var(--color-accent);
+}
+
+.font-base {
+  font-size: 1rem;
+}
+
+@media (max-width: 1100px) {
+  .inventory-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .inventory-stats-grid {
+    grid-template-columns: 1fr;
+  }
+}

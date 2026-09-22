@@ -1,0 +1,34 @@
+.admin-offers-page {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.offer-table-cell {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.offer-table-title {
+  font-size: 0.92rem;
+  color: var(--color-primary);
+  margin-bottom: 2px;
+}
+
+.offer-table-desc {
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+  max-width: 320px;
+}
+
+.discount-pill {
+  display: inline-block;
+  font-family: var(--font-sans);
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: var(--color-accent-hover);
+  background-color: var(--color-accent-light);
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+}
