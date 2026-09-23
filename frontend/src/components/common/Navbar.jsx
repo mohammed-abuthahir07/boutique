@@ -5,6 +5,7 @@ import { useCustomerAuth } from '../../context/CustomerAuthContext';
 import { useCart } from '../../context/CartContext';
 import { useWishlist } from '../../context/WishlistContext';
 import { useCatalog } from '../../context/CatalogContext';
+import { useToast } from '../../context/ToastContext';
 import './Navbar.css';
 
 export default function Navbar() {
@@ -12,6 +13,7 @@ export default function Navbar() {
   const { itemCount } = useCart();
   const { count: wishlistCount } = useWishlist();
   const { categories } = useCatalog();
+  const { info } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams] = useSearchParams();
@@ -64,6 +66,13 @@ export default function Navbar() {
     const q = searchQuery.trim();
     navigate(q ? `/shop?q=${encodeURIComponent(q)}` : '/shop');
     setMobileMenuOpen(false);
+  };
+
+  const requireSignIn = (event, path) => {
+    if (isAuthenticated) return;
+    event.preventDefault();
+    info('Please sign in to continue');
+    navigate(`/login?redirect=${encodeURIComponent(path)}`);
   };
 
   const clearSearch = () => {
@@ -123,13 +132,23 @@ export default function Navbar() {
           </form>
 
           <div className="nav-actions">
-            <Link to="/wishlist" className="action-btn" aria-label="Wishlist">
+            <Link
+              to="/wishlist"
+              className="action-btn"
+              aria-label="Wishlist"
+              onClick={(e) => requireSignIn(e, '/wishlist')}
+            >
               <Heart size={20} />
               <span className="action-label">Wishlist</span>
               {wishlistCount > 0 && <span className="action-badge">{wishlistCount}</span>}
             </Link>
 
-            <Link to="/cart" className="action-btn" aria-label="Cart">
+            <Link
+              to="/cart"
+              className="action-btn"
+              aria-label="Cart"
+              onClick={(e) => requireSignIn(e, '/cart')}
+            >
               <ShoppingBag size={20} />
               <span className="action-label">Cart</span>
               {itemCount > 0 && <span className="action-badge">{itemCount}</span>}
@@ -260,8 +279,12 @@ export default function Navbar() {
               <>
                 <NavLink to="/profile" className="mobile-nav-link">Profile</NavLink>
                 <NavLink to="/orders" className="mobile-nav-link">Orders</NavLink>
-                <NavLink to="/wishlist" className="mobile-nav-link">Wishlist ({wishlistCount})</NavLink>
-                <NavLink to="/cart" className="mobile-nav-link">Cart ({itemCount})</NavLink>
+                <NavLink to="/wishlist" className="mobile-nav-link" onClick={(e) => requireSignIn(e, '/wishlist')}>
+                  Wishlist ({wishlistCount})
+                </NavLink>
+                <NavLink to="/cart" className="mobile-nav-link" onClick={(e) => requireSignIn(e, '/cart')}>
+                  Cart ({itemCount})
+                </NavLink>
                 <button className="mobile-nav-link mobile-logout" onClick={logout}>Logout</button>
               </>
             ) : (

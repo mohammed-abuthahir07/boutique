@@ -70,7 +70,7 @@ export default function AdminProductsPage() {
       <div className="page-header-row">
         <div>
           <span className="section-subtitle">Catalog Inventory</span>
-          <h1 className="admin-page-title">Products & Silhouettes</h1>
+          <h1 className="admin-page-title">Products</h1>
         </div>
         <Link to="/admin/products/new" className="btn btn-accent">
           <Plus size={16} /> New Product
@@ -133,7 +133,7 @@ export default function AdminProductsPage() {
 
                   return (
                     <tr key={prod.id}>
-                      <td>
+                      <td data-label="Product">
                         <div className="product-table-cell">
                           <img
                             src={imgUrl}
@@ -151,16 +151,16 @@ export default function AdminProductsPage() {
                           </div>
                         </div>
                       </td>
-                      <td>
+                      <td data-label="Category">
                         <span className="category-pill">{prod.category_name || 'Unassigned'}</span>
                       </td>
-                      <td className="font-semibold">{formatPrice(prod.price)}</td>
-                      <td>
+                      <td className="font-semibold" data-label="Price">{formatPrice(prod.price)}</td>
+                      <td data-label="Stock">
                         <span className={`stock-badge ${Number(prod.stock) <= 5 ? 'low' : ''}`}>
                           {prod.stock} units
                         </span>
                       </td>
-                      <td>
+                      <td data-label="Variants">
                         <Link
                           to={`/admin/products/${prod.id}`}
                           className="variant-link-pill"
@@ -173,12 +173,12 @@ export default function AdminProductsPage() {
                           <span>{colorsCount} Color Sets</span>
                         </Link>
                       </td>
-                      <td>
+                      <td data-label="Status">
                         <span className={`badge badge-${prod.status === 'ACTIVE' ? 'active' : 'inactive'}`}>
                           {prod.status}
                         </span>
                       </td>
-                      <td className="text-right">
+                      <td className="text-right" data-label="Actions">
                         <div className="action-buttons-wrap">
                           <Link
                             to={`/admin/products/${prod.id}`}

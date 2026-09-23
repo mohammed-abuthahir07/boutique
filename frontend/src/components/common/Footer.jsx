@@ -1,9 +1,21 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Mail, Phone, MapPin, ArrowRight } from 'lucide-react';
+import { useCustomerAuth } from '../../context/CustomerAuthContext';
+import { useToast } from '../../context/ToastContext';
 import './Footer.css';
 
 export default function Footer() {
+  const { isAuthenticated } = useCustomerAuth();
+  const { info } = useToast();
+  const navigate = useNavigate();
+
+  const requireSignIn = (event, path) => {
+    if (isAuthenticated) return;
+    event.preventDefault();
+    info('Please sign in to continue');
+    navigate(`/login?redirect=${encodeURIComponent(path)}`);
+  };
   return (
     <footer className="footer">
       <div className="container footer-top">
@@ -43,30 +55,30 @@ export default function Footer() {
             <h4 className="footer-heading">Collection</h4>
             <div className="footer-gold-line"></div>
             <ul className="footer-links">
-              <li><Link to="/shop">All Creations</Link></li>
-              <li><Link to="/categories">Curated Categories</Link></li>
-              <li><Link to="/gallery">Artisanal Lookbook</Link></li>
-              <li><Link to="/shop?sort=featured">Featured Highlights</Link></li>
-              <li><Link to="/about">Our Atelier</Link></li>
+              <li><Link to="/shop">All products</Link></li>
+              <li><Link to="/categories">Categories</Link></li>
+              <li><Link to="/gallery">Gallery</Link></li>
+              <li><Link to="/shop?sort=featured">Featured</Link></li>
+              <li><Link to="/about">About us</Link></li>
             </ul>
           </div>
 
           {/* Customer Care */}
           <div className="footer-col">
-            <h4 className="footer-heading">Client Services</h4>
+            <h4 className="footer-heading">Help</h4>
             <div className="footer-gold-line"></div>
             <ul className="footer-links">
-              <li><Link to="/profile">Personal Account</Link></li>
-              <li><Link to="/orders">Track Orders</Link></li>
-              <li><Link to="/wishlist">Private Wishlist</Link></li>
-              <li><Link to="/cart">Shopping Bag</Link></li>
-              <li><Link to="/contact">Concierge Support</Link></li>
+              <li><Link to="/profile" onClick={(e) => requireSignIn(e, '/profile')}>Your account</Link></li>
+              <li><Link to="/orders" onClick={(e) => requireSignIn(e, '/orders')}>Track order</Link></li>
+              <li><Link to="/wishlist" onClick={(e) => requireSignIn(e, '/wishlist')}>Wishlist</Link></li>
+              <li><Link to="/cart" onClick={(e) => requireSignIn(e, '/cart')}>Cart</Link></li>
+              <li><Link to="/contact">Contact us</Link></li>
             </ul>
           </div>
 
           {/* Atelier Contact */}
-          <div className="footer-col">
-            <h4 className="footer-heading">Atelier & Hours</h4>
+          <div className="footer-col contact-col">
+            <h4 className="footer-heading">Get in touch</h4>
             <div className="footer-gold-line"></div>
             <ul className="contact-list">
               <li>
@@ -83,7 +95,7 @@ export default function Footer() {
               </li>
             </ul>
             <div className="newsletter-box">
-              <p className="newsletter-label">Receive Private Invitations</p>
+              <p className="newsletter-label">Get offers on email</p>
               <form onSubmit={(e) => e.preventDefault()} className="newsletter-form">
                 <input
                   type="email"

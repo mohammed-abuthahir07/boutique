@@ -1,6 +1,6 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import publicService from '../services/publicService';
-import { extractProductColors } from '../utils/colors';
+import { extractProductColors, extractProductSizes, sortSizes } from '../utils/colors';
 
 const CatalogContext = createContext(null);
 const CACHE_TTL_MS = 60 * 1000;
@@ -17,11 +17,13 @@ async function enrichWithColors(listed) {
       return {
         ...product,
         colors: extractProductColors(full),
+        sizes: extractProductSizes(full),
       };
     }
     return {
       ...product,
       colors: extractProductColors(product),
+      sizes: extractProductSizes(product),
     };
   });
 }
@@ -57,7 +59,7 @@ export function CatalogProvider({ children }) {
         let listed = [];
         if (prodRes.status === 'fulfilled' && prodRes.value.success) {
           listed = prodRes.value.products || [];
-          setProducts(listed.map((p) => ({ ...p, colors: p.colors || [] })));
+          setProducts(listed.map((p) => ({ ...p, colors: p.colors || [], sizes: p.sizes || [] })));
         } else if (prodRes.status === 'rejected') {
           setError(prodRes.reason?.message || 'Unable to load products right now.');
         }
@@ -110,6 +112,17 @@ export function CatalogProvider({ children }) {
     return Array.from(map.values());
   }, [products]);
 
+  const sizes = useMemo(() => {
+    const map = new Map();
+    products.forEach((p) => {
+      (p.sizes || []).forEach((size) => {
+        const key = String(size).toLowerCase();
+        map.set(key, { name: size, count: (map.get(key)?.count || 0) + 1 });
+      });
+    });
+    return Array.from(map.values()).sort((a, b) => sortSizes(a.name, b.name));
+  }, [products]);
+
   const colors = useMemo(() => {
     const map = new Map();
     products.forEach((p) => {
@@ -127,11 +140,12 @@ export function CatalogProvider({ children }) {
       offers,
       categories,
       colors,
+      sizes,
       loading,
       error,
       refresh: () => loadCatalog(true),
     }),
-    [products, offers, categories, colors, loading, error, loadCatalog]
+    [products, offers, categories, colors, sizes, loading, error, loadCatalog]
   );
 
   return <CatalogContext.Provider value={value}>{children}</CatalogContext.Provider>;

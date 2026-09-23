@@ -12,8 +12,8 @@ export default function ColorSelector({
   return (
     <div className="color-selector">
       <div className="selector-header">
-        <span className="selector-label">Atelier Palette:</span>
-        <span className="selector-current-value">{selectedColor || 'Select a shade'}</span>
+        <span className="selector-label">Colour:</span>
+        <span className="selector-current-value">{selectedColor || 'Select'}</span>
       </div>
 
       <div className="color-pills-wrap">

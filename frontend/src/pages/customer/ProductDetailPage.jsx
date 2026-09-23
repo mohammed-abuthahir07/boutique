@@ -129,18 +129,25 @@ export default function ProductDetailPage() {
   const imagesForSelectedColor = useMemo(() => {
     if (!product) return [FALLBACK_PRODUCT_IMAGE];
 
+    const seen = new Set();
+    const images = [];
+    const push = (img) => {
+      if (!img || seen.has(img)) return;
+      seen.add(img);
+      images.push(img);
+    };
+
     const colorImages = product.color_images || [];
+    push(product.image);
     if (selectedColor && colorImages.length > 0) {
-      const filtered = colorImages
-        .filter((ci) => ci.color.toLowerCase() === selectedColor.toLowerCase())
+      colorImages
+        .filter((ci) => ci.color && ci.color.toLowerCase() === selectedColor.toLowerCase())
         .sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0))
-        .map((ci) => ci.image);
-
-      if (filtered.length > 0) return filtered;
+        .forEach((ci) => push(ci.image));
     }
+    colorImages.forEach((ci) => push(ci.image));
 
-    // Fallback to product.image or default
-    return product.image ? [product.image] : [FALLBACK_PRODUCT_IMAGE];
+    return images.length > 0 ? images : [FALLBACK_PRODUCT_IMAGE];
   }, [product, selectedColor]);
 
   // Stock check
@@ -180,17 +187,17 @@ export default function ProductDetailPage() {
   };
 
   if (loading) {
-    return <Loader fullScreen message="Unveiling couture creation..." />;
+    return <Loader fullScreen message="Loading product..." />;
   }
 
   if (errorMessage || !product) {
     return (
       <div className="container product-not-found">
         <AlertCircle size={48} className="not-found-icon" />
-        <h2>Creation Unavailable</h2>
-        <p>{errorMessage || 'This design is no longer available in the public catalog.'}</p>
+        <h2>Product unavailable</h2>
+        <p>{errorMessage || 'This product is no longer available.'}</p>
         <Link to="/shop" className="btn btn-accent btn-sm">
-          Return to Shop
+          Back to shop
         </Link>
       </div>
     );
@@ -229,7 +236,7 @@ export default function ProductDetailPage() {
               <h1 className="product-main-title">{product.name}</h1>
               <div className="product-price-badge-wrap">
                 <span className="product-detail-price">{formatPrice(product.price)}</span>
-                <span className="tax-inclusive-tag">Inclusive of all duties & taxes</span>
+                <span className="tax-inclusive-tag">Inclusive of all taxes</span>
               </div>
             </div>
 
@@ -257,15 +264,15 @@ export default function ProductDetailPage() {
               {selectedVariant ? (
                 availableStock > 0 ? (
                   <span className="stock-pill in-stock">
-                    <Check size={14} /> Available ({availableStock} in atelier)
+                    <Check size={14} /> In stock ({availableStock} left)
                   </span>
                 ) : (
                   <span className="stock-pill out-of-stock">
-                    Out of Stock in this sizing
+                    Currently out of stock
                   </span>
                 )
               ) : (
-                <span className="stock-pill choose-pill">Select fit to view stock</span>
+                <span className="stock-pill choose-pill">Select a size to see stock</span>
               )}
             </div>
 
@@ -290,7 +297,7 @@ export default function ProductDetailPage() {
                   disabled={isOutOfStock || !selectedVariant || addingToCart}
                 >
                   <ShoppingBag size={18} />
-                  {addingToCart ? 'Adding to bag...' : isOutOfStock ? 'Sold Out' : 'Add to Bag'}
+                  {addingToCart ? 'Adding...' : isOutOfStock ? 'Sold out' : 'Add to Cart'}
                 </button>
 
                 <button
@@ -300,7 +307,7 @@ export default function ProductDetailPage() {
                   aria-label={favorited ? 'Remove from Wishlist' : 'Add to Wishlist'}
                 >
                   <Heart size={18} fill={favorited ? 'currentColor' : 'none'} />
-                  <span>{favorited ? 'Saved in Wishlist' : 'Save to Wishlist'}</span>
+                  <span>{favorited ? 'Saved' : 'Add to Wishlist'}</span>
                 </button>
               </div>
             </div>
@@ -309,15 +316,15 @@ export default function ProductDetailPage() {
             <div className="atelier-perks-box">
               <div className="perk-item">
                 <Truck size={18} className="perk-icon" />
-                <span>Complimentary Express Delivery within 2-4 business days</span>
+                <span>Free delivery in 2–4 business days</span>
               </div>
               <div className="perk-item">
                 <ShieldCheck size={18} className="perk-icon" />
-                <span>100% Authentic Handcrafted Heritage Garment</span>
+                <span>Secure checkout · Genuine products</span>
               </div>
               <div className="perk-item">
                 <RefreshCw size={18} className="perk-icon" />
-                <span>Complimentary Size Exchange within 7 days</span>
+                <span>Easy 7-day size exchange</span>
               </div>
             </div>
 
@@ -325,10 +332,10 @@ export default function ProductDetailPage() {
             <div className="product-meta-actions">
               <button type="button" className="share-btn" onClick={handleShare}>
                 <Share2 size={16} />
-                <span>{copiedLink ? 'Link Copied!' : 'Share Creation'}</span>
+                <span>{copiedLink ? 'Link copied' : 'Share'}</span>
               </button>
               <Link to="/contact" className="inquire-link">
-                Inquire with Atelier Concierge
+                Need help? Contact us
               </Link>
             </div>
 
@@ -340,21 +347,21 @@ export default function ProductDetailPage() {
                   className={`tab-btn ${activeTab === 'description' ? 'active' : ''}`}
                   onClick={() => setActiveTab('description')}
                 >
-                  Creation Details
+                  Details
                 </button>
                 <button
                   type="button"
                   className={`tab-btn ${activeTab === 'fit' ? 'active' : ''}`}
                   onClick={() => setActiveTab('fit')}
                 >
-                  Fit & Measurements
+                  Size & fit
                 </button>
                 <button
                   type="button"
                   className={`tab-btn ${activeTab === 'shipping' ? 'active' : ''}`}
                   onClick={() => setActiveTab('shipping')}
                 >
-                  Delivery & Returns
+                  Delivery
                 </button>
               </div>
 
@@ -363,12 +370,12 @@ export default function ProductDetailPage() {
                   <div className="tab-pane">
                     <p className="tab-text">
                       {product.description ||
-                        'Crafted from the finest organic textiles with meticulous French seams and delicate hand-finished accents. Designed to drape effortlessly on diverse silhouettes while offering uncompromised comfort.'}
+                        'Soft, everyday wear with a clean finish. See size options above for available stock.'}
                     </p>
                     <ul className="tab-bullets">
-                      <li>Artisanal tailoring with precision finishing</li>
-                      <li>Naturally breathable fabric composition</li>
-                      <li>Exclusive boutique production run</li>
+                      <li>Colour-specific photos shown on the left</li>
+                      <li>Choose size to check live stock</li>
+                      <li>Ships from our boutique warehouse</li>
                     </ul>
                   </div>
                 )}
@@ -376,10 +383,10 @@ export default function ProductDetailPage() {
                 {activeTab === 'fit' && (
                   <div className="tab-pane">
                     <p className="tab-text">
-                      This creation features an easy, tailored silhouette designed to fall gently over the contours of the body.
+                      Regular fit. Pick your usual size. If you are between sizes, we recommend the larger one.
                     </p>
                     <p className="tab-note">
-                      <strong>Model Fit:</strong> Model is 5'9" wearing size S. For personalized assistance, contact concierge.
+                      <strong>Need help?</strong> Message us from the Contact page with your measurements.
                     </p>
                   </div>
                 )}
@@ -387,10 +394,10 @@ export default function ProductDetailPage() {
                 {activeTab === 'shipping' && (
                   <div className="tab-pane">
                     <p className="tab-text">
-                      Orders are packaged in signature archival gift boxes. Shipped fully insured via air express with real-time tracking.
+                      Free standard delivery in 2–4 business days after dispatch. You will get tracking once the order ships.
                     </p>
                     <p className="tab-text">
-                      Exchanges accepted on unworn items with tags intact within 7 calendar days of receipt.
+                      Unused items with tags can be exchanged within 7 days of delivery.
                     </p>
                   </div>
                 )}

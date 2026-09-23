@@ -101,4 +101,24 @@
   .form-grid {
     grid-template-columns: 1fr;
   }
+
+  .preview-column {
+    position: static;
+  }
+
+  .product-form-card {
+    padding: 18px 14px;
+  }
+
+  .form-row-2 {
+    grid-template-columns: 1fr;
+  }
+
+  .form-footer-buttons {
+    flex-direction: column-reverse;
+  }
+
+  .form-footer-buttons .btn {
+    width: 100%;
+  }
 }

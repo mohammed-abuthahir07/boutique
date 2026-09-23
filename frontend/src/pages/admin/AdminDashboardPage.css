@@ -288,6 +288,19 @@
   text-decoration: underline;
 }
 
+@media (max-width: 768px) {
+  .admin-table-wrap,
+  .admin-table-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .admin-table,
+  .admin-table-wrap .admin-table {
+    min-width: 560px;
+  }
+}
+
 @media (max-width: 1200px) {
   .stats-grid {
     grid-template-columns: repeat(2, 1fr);
@@ -302,5 +315,37 @@
 @media (max-width: 600px) {
   .stats-grid {
     grid-template-columns: 1fr;
+  }
+
+  .admin-dashboard-page {
+    gap: 16px;
+  }
+
+  .admin-view-title {
+    font-size: 1.25rem;
+  }
+
+  .stat-card,
+  .dash-panel-card,
+  .dash-table-card {
+    padding: 14px;
+  }
+
+  .stat-val {
+    font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif;
+    font-size: 1.3rem;
+  }
+
+  .yearly-revenue-summary {
+    flex-direction: column;
+  }
+
+  .month-rev-item {
+    flex-wrap: wrap;
+  }
+
+  .month-amount {
+    width: auto;
+    text-align: left;
   }
 }

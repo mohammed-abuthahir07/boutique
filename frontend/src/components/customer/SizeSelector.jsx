@@ -18,9 +18,11 @@ export default function SizeSelector({
   return (
     <div className="size-selector">
       <div className="selector-header">
-        <span className="selector-label">Artisanal Size:</span>
+        <span className="selector-label">Size:</span>
         <span className="selector-current-value">
-          {selectedVariant ? `${selectedVariant.size} (${selectedVariant.stock > 0 ? `${selectedVariant.stock} left in atelier` : 'Out of Stock'})` : 'Choose your fit'}
+          {selectedVariant
+            ? `${selectedVariant.size}${Number(selectedVariant.stock) > 0 ? ` — ${selectedVariant.stock} in stock` : ' — Out of stock'}`
+            : 'Select a size'}
         </span>
       </div>
 

@@ -74,7 +74,7 @@ export default function AdminOrdersPage() {
       <div className="page-header-row">
         <div>
           <span className="section-subtitle">Dispatch & Fulfillment</span>
-          <h1 className="admin-page-title">Client Orders Management</h1>
+          <h1 className="admin-page-title">Orders</h1>
         </div>
       </div>
 
@@ -127,7 +127,7 @@ export default function AdminOrdersPage() {
               <tbody>
                 {filtered.map((ord) => (
                   <tr key={ord.id}>
-                    <td>
+                    <td data-label="Order">
                       <div className="order-ref-cell">
                         <Package size={16} className="text-gold" />
                         <Link to={`/admin/orders/${ord.id}`} className="order-ref-code">
@@ -135,7 +135,7 @@ export default function AdminOrdersPage() {
                         </Link>
                       </div>
                     </td>
-                    <td>
+                    <td data-label="Customer">
                       <div className="client-cell">
                         <span className="client-name">{ord.customer_name}</span>
                         <span className="client-contact">
@@ -143,14 +143,14 @@ export default function AdminOrdersPage() {
                         </span>
                       </div>
                     </td>
-                    <td className="font-semibold">{formatPrice(ord.total_amount)}</td>
-                    <td>
+                    <td className="font-semibold" data-label="Total">{formatPrice(ord.total_amount)}</td>
+                    <td data-label="Status">
                       <span className={`badge badge-${ord.order_status?.toLowerCase() || 'pending'}`}>
                         {ord.order_status}
                       </span>
                     </td>
-                    <td className="text-muted">{formatDate(ord.created_at)}</td>
-                    <td className="text-right">
+                    <td className="text-muted" data-label="Date">{formatDate(ord.created_at)}</td>
+                    <td className="text-right" data-label="Action">
                       <Link
                         to={`/admin/orders/${ord.id}`}
                         className="btn btn-outline-gold btn-sm"

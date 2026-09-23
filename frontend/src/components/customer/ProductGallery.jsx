@@ -19,20 +19,6 @@ export default function ProductGallery({ images = [], altText = 'Product Image' 
 
   return (
     <div className="product-gallery">
-      {/* Main Image Stage */}
-      <div className="gallery-main-wrap">
-        <img
-          src={currentImage}
-          alt={altText}
-          className="gallery-main-image"
-          onError={(e) => {
-            e.target.onerror = null;
-            e.target.src = FALLBACK_PRODUCT_IMAGE;
-          }}
-        />
-      </div>
-
-      {/* Thumbnails */}
       {resolvedImages.length > 1 && (
         <div className="gallery-thumbs-row">
           {resolvedImages.map((imgUrl, idx) => (
@@ -56,6 +42,20 @@ export default function ProductGallery({ images = [], altText = 'Product Image' 
           ))}
         </div>
       )}
+
+      <div className="gallery-main-wrap">
+        <img
+          src={currentImage}
+          alt={altText}
+          className="gallery-main-image"
+          decoding="async"
+          fetchPriority="high"
+          onError={(e) => {
+            e.target.onerror = null;
+            e.target.src = FALLBACK_PRODUCT_IMAGE;
+          }}
+        />
+      </div>
     </div>
   );
 }

@@ -42,7 +42,7 @@ export default function AdminLayout() {
         <div className="sidebar-brand">
           <Link to="/admin/dashboard" className="admin-brand-link">
             <span className="brand-title">MAISON</span>
-            <span className="brand-portal">ATELIER ADMIN</span>
+            <span className="brand-portal">ADMIN</span>
           </Link>
           <button
             type="button"
@@ -79,7 +79,7 @@ export default function AdminLayout() {
             onClick={() => setSidebarOpen(false)}
           >
             <ShoppingBag size={18} />
-            <span>Products & Variants</span>
+            <span>Products</span>
           </NavLink>
 
           <NavLink
@@ -88,7 +88,7 @@ export default function AdminLayout() {
             onClick={() => setSidebarOpen(false)}
           >
             <Tag size={18} />
-            <span>Offers & Discounts</span>
+            <span>Offers</span>
           </NavLink>
 
           <NavLink
@@ -97,17 +97,17 @@ export default function AdminLayout() {
             onClick={() => setSidebarOpen(false)}
           >
             <Package size={18} />
-            <span>Orders & Dispatch</span>
+            <span>Orders</span>
           </NavLink>
 
-          <div className="nav-section-lbl">Intelligence & Clients</div>
+          <div className="nav-section-lbl">Reports</div>
           <NavLink
             to="/admin/inventory"
             className={({ isActive }) => `admin-nav-item ${isActive ? 'active' : ''}`}
             onClick={() => setSidebarOpen(false)}
           >
             <Boxes size={18} />
-            <span>Inventory Levels</span>
+            <span>Inventory</span>
           </NavLink>
 
           <NavLink
@@ -116,7 +116,7 @@ export default function AdminLayout() {
             onClick={() => setSidebarOpen(false)}
           >
             <BarChart3 size={18} />
-            <span>Sales Analytics</span>
+            <span>Analytics</span>
           </NavLink>
 
           <NavLink
@@ -125,18 +125,18 @@ export default function AdminLayout() {
             onClick={() => setSidebarOpen(false)}
           >
             <Users size={18} />
-            <span>Customer Roster</span>
+            <span>Customers</span>
           </NavLink>
         </nav>
 
         <div className="admin-sidebar-footer">
           <Link to="/" target="_blank" rel="noopener noreferrer" className="storefront-link">
             <ExternalLink size={15} />
-            <span>Live Boutique</span>
+            <span>View store</span>
           </Link>
           <button type="button" onClick={handleLogout} className="admin-logout-btn">
             <LogOut size={16} />
-            <span>Exit Admin</span>
+            <span>Logout</span>
           </button>
         </div>
       </aside>
@@ -155,7 +155,7 @@ export default function AdminLayout() {
             </button>
             <div className="admin-breadcrumb-info">
               <span className="portal-badge">
-                <Shield size={12} /> Atelier Administrator
+                <Shield size={12} /> Administrator
               </span>
             </div>
           </div>

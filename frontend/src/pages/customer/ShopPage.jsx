@@ -9,6 +9,8 @@ import useDebouncedValue from '../../hooks/useDebouncedValue';
 import { colorToHex } from '../../utils/colors';
 import './ShopPage.css';
 
+const PAGE_SIZE = 20;
+
 const PRICE_FILTERS = [
   { id: '', label: 'Any price' },
   { id: '0-2000', label: 'Under ₹2,000' },
@@ -27,20 +29,23 @@ function matchesPrice(product, priceFilter) {
 
 export default function ShopPage() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const { products, categories, colors, loading, error, refresh } = useCatalog();
+  const { products, categories, colors, sizes, loading, error, refresh } = useCatalog();
 
   const [searchTerm, setSearchTerm] = useState(searchParams.get('q') || '');
   const [selectedCategory, setSelectedCategory] = useState(searchParams.get('category') || '');
   const [selectedColor, setSelectedColor] = useState(searchParams.get('color') || '');
+  const [selectedSize, setSelectedSize] = useState(searchParams.get('size') || '');
   const [priceFilter, setPriceFilter] = useState('');
   const [sortBy, setSortBy] = useState('featured');
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
+  const [page, setPage] = useState(Math.max(1, Number(searchParams.get('page')) || 1));
   const debouncedSearch = useDebouncedValue(searchTerm, 300);
 
   useEffect(() => {
     setSearchTerm(searchParams.get('q') || '');
     setSelectedCategory(searchParams.get('category') || '');
     setSelectedColor(searchParams.get('color') || '');
+    setSelectedSize(searchParams.get('size') || '');
   }, [searchParams]);
 
   useEffect(() => {
@@ -65,7 +70,10 @@ export default function ShopPage() {
         const matchesColor =
           !selectedColor ||
           (p.colors || []).some((c) => c.toLowerCase() === selectedColor.toLowerCase());
-        return matchesSearch && matchesCategory && matchesColor && matchesPrice(p, priceFilter);
+        const matchesSize =
+          !selectedSize ||
+          (p.sizes || []).some((s) => String(s).toLowerCase() === selectedSize.toLowerCase());
+        return matchesSearch && matchesCategory && matchesColor && matchesSize && matchesPrice(p, priceFilter);
       })
       .sort((a, b) => {
         if (sortBy === 'price-low') return Number(a.price) - Number(b.price);
@@ -73,7 +81,31 @@ export default function ShopPage() {
         if (sortBy === 'name-asc') return a.name.localeCompare(b.name);
         return b.id - a.id;
       });
-  }, [products, searchTerm, selectedCategory, selectedColor, sortBy, priceFilter]);
+  }, [products, searchTerm, selectedCategory, selectedColor, selectedSize, sortBy, priceFilter]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [selectedCategory, selectedColor, selectedSize, priceFilter, searchTerm, sortBy]);
+
+  useEffect(() => {
+    const header = document.querySelector('.header');
+    const syncHeader = () => {
+      document.documentElement.style.setProperty('--store-header-h', `${header?.offsetHeight || 120}px`);
+    };
+    syncHeader();
+    window.addEventListener('resize', syncHeader);
+    return () => window.removeEventListener('resize', syncHeader);
+  }, []);
+
+  const totalPages = Math.max(1, Math.ceil(filteredProducts.length / PAGE_SIZE));
+  const currentPage = Math.min(page, totalPages);
+  const pagedProducts = filteredProducts.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+
+  const goToPage = (nextPage) => {
+    const safe = Math.min(Math.max(1, nextPage), totalPages);
+    setPage(safe);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   const updateParam = (key, value) => {
     const next = new URLSearchParams(searchParams);
@@ -97,12 +129,19 @@ export default function ShopPage() {
     setSearchTerm('');
     setSelectedCategory('');
     setSelectedColor('');
+    setSelectedSize('');
     setPriceFilter('');
     setSortBy('featured');
     setSearchParams({});
   };
 
-  const hasFilters = Boolean(selectedCategory || searchTerm || priceFilter || selectedColor);
+  const hasFilters = Boolean(selectedCategory || searchTerm || priceFilter || selectedColor || selectedSize);
+
+  const handleSizeSelect = (size) => {
+    const next = selectedSize.toLowerCase() === String(size).toLowerCase() ? '' : size;
+    setSelectedSize(next);
+    updateParam('size', next);
+  };
 
   return (
     <div className="shop-page page-enter">
@@ -115,10 +154,26 @@ export default function ShopPage() {
         </div>
       </div>
 
+      <div className="mobile-shop-bar">
+        <button type="button" onClick={() => setMobileFilterOpen(true)}>
+          <SlidersHorizontal size={16} /> Filter
+        </button>
+        <span className="mobile-result-count">{filteredProducts.length} results</span>
+        <select value={sortBy} onChange={(e) => setSortBy(e.target.value)} aria-label="Sort">
+          <option value="featured">Newest</option>
+          <option value="price-low">Price: Low to High</option>
+          <option value="price-high">Price: High to Low</option>
+          <option value="name-asc">Name: A to Z</option>
+        </select>
+      </div>
+
       <div className="container shop-main-container">
         <div className="shop-toolbar">
           <p className="product-count-text">
             <strong>{filteredProducts.length}</strong> results
+            {filteredProducts.length > PAGE_SIZE && (
+              <span> · page {currentPage} of {totalPages}</span>
+            )}
           </p>
           <select
             id="shop-sort"
@@ -148,6 +203,14 @@ export default function ShopPage() {
               <span className="active-filter-chip">
                 {selectedColor}
                 <button type="button" onClick={() => handleColorSelect(selectedColor)} aria-label="Remove color">
+                  <X size={12} />
+                </button>
+              </span>
+            )}
+            {selectedSize && (
+              <span className="active-filter-chip">
+                Size {selectedSize}
+                <button type="button" onClick={() => handleSizeSelect(selectedSize)} aria-label="Remove size">
                   <X size={12} />
                 </button>
               </span>
@@ -232,6 +295,28 @@ export default function ShopPage() {
               </section>
             )}
 
+            {sizes.length > 0 && (
+              <section className="filter-group">
+                <h4 className="sidebar-title">Size</h4>
+                <div className="size-chip-list">
+                  {sizes.map((size) => {
+                    const active = selectedSize.toLowerCase() === String(size.name).toLowerCase();
+                    return (
+                      <button
+                        key={size.name}
+                        type="button"
+                        className={`size-chip ${active ? 'active' : ''}`}
+                        onClick={() => handleSizeSelect(size.name)}
+                      >
+                        {size.name}
+                        <em>{size.count}</em>
+                      </button>
+                    );
+                  })}
+                </div>
+              </section>
+            )}
+
             <section className="filter-group">
               <h4 className="sidebar-title">Price</h4>
               {PRICE_FILTERS.map((opt) => (
@@ -261,11 +346,36 @@ export default function ShopPage() {
                 <button type="button" onClick={refresh} className="btn btn-outline btn-sm">Retry</button>
               </div>
             ) : filteredProducts.length > 0 ? (
-              <ProductGrid products={filteredProducts} />
+              <>
+                <ProductGrid products={pagedProducts} />
+                {totalPages > 1 && (
+                  <nav className="shop-pagination" aria-label="Product pages">
+                    <button
+                      type="button"
+                      className="btn btn-outline btn-sm"
+                      disabled={currentPage <= 1}
+                      onClick={() => goToPage(currentPage - 1)}
+                    >
+                      Previous
+                    </button>
+                    <span className="shop-page-status">
+                      {((currentPage - 1) * PAGE_SIZE) + 1}–{Math.min(currentPage * PAGE_SIZE, filteredProducts.length)} of {filteredProducts.length}
+                    </span>
+                    <button
+                      type="button"
+                      className="btn btn-primary btn-sm"
+                      disabled={currentPage >= totalPages}
+                      onClick={() => goToPage(currentPage + 1)}
+                    >
+                      Next
+                    </button>
+                  </nav>
+                )}
+              </>
             ) : (
               <EmptyState
                 title="No products match"
-                description="Try another color, category, or price range."
+                description="Try another size, color, category, or price range."
                 actionText="Clear filters"
                 onActionClick={clearAllFilters}
               />
@@ -274,17 +384,6 @@ export default function ShopPage() {
         </div>
       </div>
 
-      <div className="mobile-shop-bar">
-        <button type="button" onClick={() => setMobileFilterOpen(true)}>
-          <SlidersHorizontal size={16} /> Filter
-        </button>
-        <select value={sortBy} onChange={(e) => setSortBy(e.target.value)} aria-label="Sort">
-          <option value="featured">Newest</option>
-          <option value="price-low">Price: Low to High</option>
-          <option value="price-high">Price: High to Low</option>
-          <option value="name-asc">Name: A to Z</option>
-        </select>
-      </div>
     </div>
   );
 }

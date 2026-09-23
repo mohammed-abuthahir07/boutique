@@ -11,6 +11,16 @@
   width: calc(100% - 48px);
 }
 
+@media (max-width: 768px) {
+  .toast-container {
+    top: 12px;
+    right: 12px;
+    left: 12px;
+    width: auto;
+    max-width: none;
+  }
+}
+
 .toast-item {
   pointer-events: auto;
   display: flex;

@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import adminService from '../../services/adminService';
 import Loader from '../../components/common/Loader';
+import { formatPrice } from '../../utils/format';
 import './AdminAnalyticsPage.css';
 
 export default function AdminAnalyticsPage() {
@@ -140,9 +141,9 @@ export default function AdminAnalyticsPage() {
     <div className="admin-analytics-page">
       <div className="admin-page-header">
         <div>
-          <h1 className="admin-page-title">Store Analytics & Insights</h1>
+          <h1 className="admin-page-title">Analytics</h1>
           <p className="admin-page-subtitle">
-            Comprehensive sales performance, order flow, inventory health, and product demand metrics.
+            Sales, orders, and catalog performance.
           </p>
         </div>
       </div>
@@ -156,7 +157,7 @@ export default function AdminAnalyticsPage() {
               <DollarSign size={20} />
             </div>
           </div>
-          <div className="kpi-value">${totalRevenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+          <div className="kpi-value">{formatPrice(totalRevenue)}</div>
           <div className="kpi-subtext">Excludes cancelled orders</div>
         </div>
 
@@ -220,7 +221,7 @@ export default function AdminAnalyticsPage() {
                 return (
                   <div key={item.month || idx} className="chart-bar-col">
                     <div className="bar-tooltip">
-                      ${amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      {formatPrice(amount)}
                     </div>
                     <div className="chart-bar-track">
                       <div
@@ -338,7 +339,7 @@ export default function AdminAnalyticsPage() {
                       <div className="cat-figures">
                         <span className="cat-qty">{cat.products_sold || 0} sold</span>
                         <span className="cat-amount">
-                          ${sales.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                          {formatPrice(sales)}
                         </span>
                       </div>
                     </div>
@@ -394,7 +395,7 @@ export default function AdminAnalyticsPage() {
                         {prod.total_quantity}
                       </td>
                       <td style={{ textAlign: 'right', fontWeight: 600, color: 'var(--color-primary-dark)' }}>
-                        ${sales.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        {formatPrice(sales)}
                       </td>
                     </tr>
                   );

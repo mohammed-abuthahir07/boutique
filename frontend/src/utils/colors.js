@@ -37,6 +37,39 @@ export function colorToHex(name) {
   return match ? COLOR_MAP[match] : '#8d6e63';
 }
 
+const SIZE_RANK = {
+  xs: 1,
+  s: 2,
+  small: 2,
+  m: 3,
+  medium: 3,
+  l: 4,
+  large: 4,
+  xl: 5,
+  xxl: 6,
+  '2xl': 6,
+  xxxl: 7,
+  '3xl': 7,
+  free: 90,
+  'free size': 90,
+  onesize: 90,
+};
+
+export function extractProductSizes(product) {
+  const set = new Set();
+  (product?.variants || []).forEach((v) => {
+    if (v.size) set.add(String(v.size).trim());
+  });
+  return Array.from(set);
+}
+
+export function sortSizes(a, b) {
+  const ra = SIZE_RANK[String(a).toLowerCase()] ?? 50;
+  const rb = SIZE_RANK[String(b).toLowerCase()] ?? 50;
+  if (ra !== rb) return ra - rb;
+  return String(a).localeCompare(String(b), undefined, { numeric: true });
+}
+
 export function extractProductColors(product) {
   const set = new Set();
   (product?.variants || []).forEach((v) => {

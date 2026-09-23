@@ -119,3 +119,18 @@
 .auth-link:hover {
   text-decoration: underline;
 }
+
+@media (max-width: 640px) {
+  .login-page {
+    padding-bottom: 40px;
+  }
+
+  .login-card {
+    padding: 24px 16px;
+  }
+
+  .login-title {
+    font-family: var(--font-sans);
+    font-size: 1.5rem;
+  }
+}

@@ -101,9 +101,9 @@ export default function LoginPage() {
         <div className="login-card card">
           <div className="login-header">
             <span className="section-subtitle">Client Portal</span>
-            <h1 className="login-title">Sign In to Maison</h1>
+            <h1 className="login-title">Sign in</h1>
             <p className="login-subtitle">
-              Enter your credentials to access your private wishlist, past orders, and tailored sizing recommendations.
+              Sign in to use wishlist, cart, and your orders.
             </p>
           </div>
 

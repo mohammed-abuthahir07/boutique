@@ -5,7 +5,16 @@
 .admin-analytics-page {
   display: flex;
   flex-direction: column;
-  gap: 32px;
+  gap: 24px;
+  font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif;
+}
+
+.admin-analytics-page h1,
+.admin-analytics-page h2,
+.admin-analytics-page .admin-page-title,
+.admin-analytics-page .chart-title,
+.admin-analytics-page .kpi-value {
+  font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif;
 }
 
 /* Page header (shared pattern used by many admin pages) */
@@ -18,10 +27,10 @@
 }
 
 .admin-page-title {
-  font-family: var(--font-serif);
-  font-size: 2rem;
+  font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif;
+  font-size: 1.6rem;
   font-weight: 700;
-  color: var(--color-primary);
+  color: #111827;
   line-height: 1.25;
   margin-bottom: 4px;
 }
@@ -129,10 +138,10 @@
 }
 
 .kpi-value {
-  font-family: var(--font-serif);
-  font-size: 2rem;
+  font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif;
+  font-size: 1.7rem;
   font-weight: 700;
-  color: var(--color-primary);
+  color: #111827;
   line-height: 1.2;
   margin-bottom: 4px;
 }
@@ -175,10 +184,10 @@
 }
 
 .chart-title {
-  font-family: var(--font-serif);
-  font-size: 1.05rem;
-  font-weight: 600;
-  color: var(--color-primary);
+  font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #111827;
   margin-bottom: 2px;
   line-height: 1.3;
 }
@@ -507,4 +516,40 @@
   font-size: 0.72rem;
   color: var(--color-text-light);
   margin-top: 2px;
+}
+
+@media (max-width: 768px) {
+  .admin-analytics-page {
+    gap: 16px;
+  }
+
+  .admin-page-title {
+    font-size: 1.25rem;
+  }
+
+  .analytics-kpi-card,
+  .analytics-chart-card,
+  .analytics-card {
+    padding: 14px;
+  }
+
+  .kpi-value {
+    font-size: 1.35rem;
+  }
+
+  .css-bar-chart {
+    height: 180px;
+    gap: 8px;
+  }
+
+  .chart-bar-track {
+    height: 130px;
+  }
+
+  .status-row-info,
+  .cat-sale-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
 }
