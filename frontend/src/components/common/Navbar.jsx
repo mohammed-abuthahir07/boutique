@@ -106,7 +106,7 @@ export default function Navbar() {
           </button>
 
           <Link to="/" className="brand-logo" aria-label="Maison Boutique home">
-            <span className="logo-main">MAISON</span>
+            <span className="logo-main">SRI ANNAI</span>
             <span className="logo-sub">BOUTIQUE</span>
           </Link>
 
