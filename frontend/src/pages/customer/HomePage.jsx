@@ -1,9 +1,9 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Sparkles, ShieldCheck, Truck, RefreshCw, Tag } from 'lucide-react';
+import { ArrowRight, Sparkles, ShieldCheck, Truck, RefreshCw } from 'lucide-react';
 import ProductGrid, { ProductGridSkeleton } from '../../components/customer/ProductGrid';
 import { useCatalog } from '../../context/CatalogContext';
-import { formatOfferLabel } from '../../utils/format';
+import OfferPromo from '../../components/customer/OfferPromo';
 import collection from '../../assets/collections.png';
 import './HomePage.css';
 
@@ -71,43 +71,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Promotional Offers Section (if active backend offers exist) */}
-      {offers.length > 0 && (
-        <section className="offers-section">
-          <div className="container">
-            <div className="section-title-wrap">
-              <span className="section-subtitle">Privileged Seasonal Promotions</span>
-              <h2 className="section-title">Exclusive Atelier Offers</h2>
-              <div className="gold-divider-center"></div>
-              <p className="section-desc">
-                Take advantage of limited-time festive curations and bespoke couture privileges.
-              </p>
-            </div>
-
-            <div className="offers-grid">
-              {offers.map((offer) => (
-                <div key={offer.id} className="offer-card">
-                  <div className="offer-badge">
-                    <Tag size={14} />
-                    <span>{formatOfferLabel(offer)}</span>
-                  </div>
-                  <h3 className="offer-title">{offer.title}</h3>
-                  {offer.description && <p className="offer-desc">{offer.description}</p>}
-                  <div className="offer-footer">
-                    <span className="offer-validity">
-                      Valid: {new Date(offer.start_date).toLocaleDateString('en-IN', { month: 'short', day: 'numeric' })} –{' '}
-                      {new Date(offer.end_date).toLocaleDateString('en-IN', { month: 'short', day: 'numeric', year: 'numeric' })}
-                    </span>
-                    <Link to="/shop" className="btn btn-accent btn-sm">
-                      Claim Privilege
-                    </Link>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
+      {offers.length > 0 && <OfferPromo offers={offers} />}
 
       {/* Curated Categories Section */}
       {categories.length > 0 && (

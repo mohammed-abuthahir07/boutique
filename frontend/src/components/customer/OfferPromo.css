@@ -1,0 +1,213 @@
+.offer-promo-section {
+  padding: 36px 0 48px;
+  background: linear-gradient(180deg, #fff7ed 0%, #ffffff 70%);
+}
+
+.offer-promo-head {
+  margin-bottom: 16px;
+}
+
+.offer-promo-head h2 {
+  font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif;
+  font-size: 1.45rem;
+  font-weight: 800;
+  color: #111827;
+  margin-bottom: 4px;
+}
+
+.offer-promo-head p {
+  font-size: 0.9rem;
+  color: #6b7280;
+}
+
+.offer-ad {
+  position: relative;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: minmax(160px, 280px) 1fr;
+  gap: 24px;
+  align-items: center;
+  padding: 28px 32px;
+  border-radius: 16px;
+  background: linear-gradient(115deg, #111827 0%, #7c2d12 48%, #ea580c 100%);
+  color: #fff;
+  box-shadow: 0 16px 40px rgba(234, 88, 12, 0.22);
+  animation: offerPop 0.45s ease;
+}
+
+.offer-ad-shine {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(110deg, transparent 30%, rgba(255, 255, 255, 0.18) 48%, transparent 62%);
+  transform: translateX(-120%);
+  animation: offerShine 3.6s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.offer-ad-left,
+.offer-ad-right {
+  position: relative;
+  z-index: 1;
+}
+
+.offer-ad-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  background: rgba(255, 255, 255, 0.14);
+  padding: 5px 10px;
+  border-radius: 999px;
+}
+
+.offer-ad-discount {
+  margin: 10px 0 4px;
+  font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif;
+  font-size: clamp(2.2rem, 5vw, 3.6rem);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -1px;
+  animation: offerPulse 1.8s ease-in-out infinite;
+}
+
+.offer-ad-hint {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.offer-ad-title {
+  font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif;
+  font-size: 1.45rem;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 6px;
+}
+
+.offer-ad-desc {
+  font-size: 0.95rem;
+  color: rgba(255, 255, 255, 0.88);
+  line-height: 1.5;
+  margin-bottom: 14px;
+}
+
+.offer-ad-timer {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 16px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.22);
+  font-size: 0.82rem;
+}
+
+.offer-ad-timer strong {
+  min-width: 22px;
+  display: inline-block;
+  text-align: center;
+  font-size: 0.95rem;
+}
+
+.offer-ad-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+
+.offer-ad-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #fff;
+  color: #9a3412;
+  font-weight: 800;
+  font-size: 0.9rem;
+  padding: 12px 18px;
+  border-radius: 999px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.offer-ad-cta:hover {
+  transform: translateX(3px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.18);
+}
+
+.offer-ad-valid {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.offer-promo-dots {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.offer-promo-dots button {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: #fdba74;
+}
+
+.offer-promo-dots button.active {
+  width: 22px;
+  background: #ea580c;
+}
+
+@keyframes offerShine {
+  0%, 35% { transform: translateX(-120%); }
+  60%, 100% { transform: translateX(120%); }
+}
+
+@keyframes offerPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.04); }
+}
+
+@keyframes offerPop {
+  from { opacity: 0; transform: translateY(10px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@media (max-width: 768px) {
+  .offer-promo-section {
+    padding: 20px 0 28px;
+  }
+
+  .offer-ad {
+    grid-template-columns: 1fr;
+    padding: 20px 16px;
+    gap: 12px;
+    text-align: left;
+  }
+
+  .offer-ad-discount {
+    font-size: 2.4rem;
+  }
+
+  .offer-ad-title {
+    font-size: 1.15rem;
+  }
+
+  .offer-ad-cta {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .offer-ad,
+  .offer-ad-shine,
+  .offer-ad-discount,
+  .offer-ad-cta {
+    animation: none;
+    transition: none;
+  }
+}

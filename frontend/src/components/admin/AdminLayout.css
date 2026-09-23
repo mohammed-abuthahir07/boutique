@@ -147,6 +147,7 @@
   flex-direction: column;
   min-width: 0;
   min-height: 100vh;
+  padding-top: 70px;
 }
 
 .admin-header {
@@ -157,9 +158,11 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  position: sticky;
+  position: fixed;
   top: 0;
-  z-index: 100;
+  left: 248px;
+  right: 0;
+  z-index: 900;
 }
 
 .header-left {
@@ -280,6 +283,12 @@
 
   .admin-main-wrapper {
     margin-left: 0;
+    padding-top: 64px;
+  }
+
+  .admin-header {
+    left: 0;
+    height: 64px;
   }
 
   .admin-sidebar-backdrop {
@@ -376,6 +385,10 @@
   .admin-header {
     height: 60px;
     padding: 0 12px;
+  }
+
+  .admin-main-wrapper {
+    padding-top: 60px;
   }
 
   .admin-name {
