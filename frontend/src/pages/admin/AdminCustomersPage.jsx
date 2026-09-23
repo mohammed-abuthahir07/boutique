@@ -165,7 +165,6 @@ export default function AdminCustomersPage() {
             <table className="admin-table">
               <thead>
                 <tr>
-                  <th style={{ width: '80px' }}>ID</th>
                   <th>Client</th>
                   <th>Contact</th>
                   <th>Status</th>
@@ -185,7 +184,6 @@ export default function AdminCustomersPage() {
 
                   return (
                     <tr key={cust.id}>
-                      <td className="cust-id">#{cust.id}</td>
                       <td>
                         <div className="cust-user-cell">
                           <div className="cust-avatar">

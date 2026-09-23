@@ -144,7 +144,7 @@ export default function AdminCategoriesPage() {
             <table className="admin-data-table">
               <thead>
                 <tr>
-                  <th>ID</th>
+                  {/* <th>ID</th> */}
                   <th>Category Name</th>
                   <th>Slug</th>
                   <th>Status</th>
@@ -155,7 +155,6 @@ export default function AdminCategoriesPage() {
               <tbody>
                 {filtered.map((cat) => (
                   <tr key={cat.id}>
-                    <td className="font-mono">#{cat.id}</td>
                     <td className="font-semibold">{cat.name}</td>
                     <td className="font-mono text-muted">{cat.slug}</td>
                     <td>

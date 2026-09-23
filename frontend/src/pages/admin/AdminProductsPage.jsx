@@ -145,7 +145,6 @@ export default function AdminProductsPage() {
                             }}
                           />
                           <div>
-                            <span className="product-id-tag font-mono">#{prod.id}</span>
                             <h4 className="prod-table-name">
                               <Link to={`/admin/products/${prod.id}`}>{prod.name}</Link>
                             </h4>
