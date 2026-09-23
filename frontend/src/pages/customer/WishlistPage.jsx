@@ -6,22 +6,20 @@ import { getImageUrl, FALLBACK_PRODUCT_IMAGE } from '../../config/apiConfig';
 import EmptyState from '../../components/common/EmptyState';
 import Loader from '../../components/common/Loader';
 import Breadcrumbs from '../../components/common/Breadcrumbs';
+import AccountNav from '../../components/common/AccountNav';
+import { formatPrice } from '../../utils/format';
 import './WishlistPage.css';
 
 export default function WishlistPage() {
   const { favorites, loading, toggleFavorite } = useWishlist();
 
-  const formatPrice = (val) => {
-    const num = Number(val);
-    if (isNaN(num)) return '₹0.00';
-    return `₹${num.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-  };
-
   return (
     <div className="wishlist-page">
-      <Breadcrumbs items={[{ label: 'Client Account', link: '/profile' }, { label: 'Private Wishlist' }]} />
+      <Breadcrumbs items={[{ label: 'Account', link: '/profile' }, { label: 'Wishlist' }]} />
 
-      <div className="container wishlist-container">
+      <div className="container wishlist-container account-page-layout">
+        <AccountNav />
+        <div>
         <div className="wishlist-header">
           <span className="section-subtitle">Private Curations</span>
           <h1 className="wishlist-title">Your Private Wishlist</h1>
@@ -89,6 +87,7 @@ export default function WishlistPage() {
             })}
           </div>
         )}
+        </div>
       </div>
     </div>
   );

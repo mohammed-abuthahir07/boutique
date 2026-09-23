@@ -1,67 +1,20 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Sparkles, ShieldCheck, Truck, RefreshCw, Tag } from 'lucide-react';
-import publicService from '../../services/publicService';
-import ProductGrid from '../../components/customer/ProductGrid';
-import Loader from '../../components/common/Loader';
-import collection from '../../assets/collections.png'
+import ProductGrid, { ProductGridSkeleton } from '../../components/customer/ProductGrid';
+import { useCatalog } from '../../context/CatalogContext';
+import { formatOfferLabel } from '../../utils/format';
+import collection from '../../assets/collections.png';
 import './HomePage.css';
 
 export default function HomePage() {
-  const [products, setProducts] = useState([]);
-  const [offers, setOffers] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    let isMounted = true;
-
-    async function loadHomeData() {
-      try {
-        setLoading(true);
-        // Fetch public products and active offers concurrently
-        const [prodRes, offerRes] = await Promise.allSettled([
-          publicService.getProducts(),
-          publicService.getOffers(),
-        ]);
-
-        if (isMounted) {
-          if (prodRes.status === 'fulfilled' && prodRes.value.success) {
-            setProducts(prodRes.value.products || []);
-          }
-          if (offerRes.status === 'fulfilled' && offerRes.value.success) {
-            setOffers(offerRes.value.offers || []);
-          }
-        }
-      } catch (err) {
-        if (isMounted) {
-          setError(err.message || 'Failed to load collections');
-        }
-      } finally {
-        if (isMounted) setLoading(false);
-      }
-    }
-
-    loadHomeData();
-    return () => {
-      isMounted = false;
-    };
-  }, []);
-
-  // Distinct categories from products
-  const categories = Array.from(
-    new Set(
-      products
-        .filter((p) => p.category_name)
-        .map((p) => JSON.stringify({ id: p.category_id, name: p.category_name }))
-    )
-  ).map((str) => JSON.parse(str));
+  const { products, offers, categories, loading, error } = useCatalog();
 
   // Highlight first 8 products for home page
   const featuredProducts = products.slice(0, 8);
 
   return (
-    <div className="home-page">
+    <div className="home-page page-enter">
       {/* Hero Section */}
       <section className="hero-section">
         <div className="hero-overlay"></div>
@@ -136,11 +89,7 @@ export default function HomePage() {
                 <div key={offer.id} className="offer-card">
                   <div className="offer-badge">
                     <Tag size={14} />
-                    <span>
-                      {offer.discount_type === 'PERCENTAGE'
-                        ? `${Math.round(offer.discount_value)}% OFF`
-                        : `₹${Number(offer.discount_value).toLocaleString('en-IN')} OFF`}
-                    </span>
+                    <span>{formatOfferLabel(offer)}</span>
                   </div>
                   <h3 className="offer-title">{offer.title}</h3>
                   {offer.description && <p className="offer-desc">{offer.description}</p>}
@@ -205,7 +154,7 @@ export default function HomePage() {
           </div>
 
           {loading ? (
-            <Loader message="Gathering exquisite creations..." />
+            <ProductGridSkeleton count={8} />
           ) : error ? (
             <div className="home-error-box">
               <p>{error}</p>

@@ -1,15 +1,16 @@
 .admin-layout {
   display: flex;
   min-height: 100vh;
-  background-color: #f5f4ef;
-  color: var(--color-text-main);
+  background-color: #f3f4f6;
+  color: #1f2937;
+  font-family: var(--font-admin);
 }
 
 /* Sidebar */
 .admin-sidebar {
-  width: 260px;
-  background-color: var(--color-primary);
-  color: #cfccc4;
+  width: 248px;
+  background-color: #1f2937;
+  color: #d1d5db;
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
@@ -35,17 +36,17 @@
 }
 
 .brand-title {
-  font-family: var(--font-serif);
-  font-size: 1.5rem;
-  letter-spacing: 3px;
+  font-family: var(--font-admin);
+  font-size: 1.15rem;
+  letter-spacing: 0.4px;
   font-weight: 700;
   color: #ffffff;
 }
 
 .brand-portal {
-  font-size: 0.6rem;
-  letter-spacing: 2px;
-  color: var(--color-accent);
+  font-size: 0.65rem;
+  letter-spacing: 0.8px;
+  color: #fbbf24;
   font-weight: 600;
   margin-top: 3px;
 }
@@ -79,21 +80,22 @@
   gap: 12px;
   padding: 10px 14px;
   border-radius: var(--radius-sm);
-  color: #cfccc4;
-  font-size: 0.88rem;
+  color: #d1d5db;
+  font-size: 0.86rem;
   font-weight: 500;
-  transition: all var(--transition-fast);
+  transition: background 0.18s ease, transform 0.18s ease, color 0.18s ease;
 }
 
 .admin-nav-item:hover {
   background-color: rgba(255, 255, 255, 0.08);
   color: #ffffff;
+  transform: translateX(2px);
 }
 
 .admin-nav-item.active {
-  background-color: var(--color-accent);
-  color: #ffffff;
-  font-weight: 600;
+  background-color: #f59e0b;
+  color: #111827;
+  font-weight: 700;
 }
 
 .admin-sidebar-footer {
@@ -223,6 +225,7 @@
 .admin-page-content {
   padding: 32px;
   flex: 1;
+  overflow-x: auto;
 }
 
 @media (max-width: 992px) {
@@ -236,6 +239,14 @@
 
   .admin-sidebar.sidebar-open {
     left: 0;
+  }
+
+  .admin-sidebar-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    border: 0;
+    z-index: 999;
   }
 
   .sidebar-close {

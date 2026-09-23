@@ -30,7 +30,14 @@ export default function AdminLayout() {
 
   return (
     <div className="admin-layout">
-      {/* Sidebar */}
+      {sidebarOpen && (
+        <button
+          type="button"
+          className="admin-sidebar-backdrop"
+          aria-label="Close sidebar"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
       <aside className={`admin-sidebar ${sidebarOpen ? 'sidebar-open' : ''}`}>
         <div className="sidebar-brand">
           <Link to="/admin/dashboard" className="admin-brand-link">
@@ -167,7 +174,7 @@ export default function AdminLayout() {
         </header>
 
         {/* Dynamic Nested Route View */}
-        <main className="admin-page-content">
+        <main className="admin-page-content page-enter">
           <Outlet />
         </main>
       </div>

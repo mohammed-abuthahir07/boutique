@@ -21,6 +21,7 @@ import QuantitySelector from '../../components/customer/QuantitySelector';
 import Loader from '../../components/common/Loader';
 import Breadcrumbs from '../../components/common/Breadcrumbs';
 import { FALLBACK_PRODUCT_IMAGE } from '../../config/apiConfig';
+import { formatPrice } from '../../utils/format';
 import './ProductDetailPage.css';
 
 export default function ProductDetailPage() {
@@ -146,13 +147,6 @@ export default function ProductDetailPage() {
   const availableStock = selectedVariant ? Number(selectedVariant.stock) : 0;
   const isOutOfStock = availableStock <= 0;
 
-  // Format currency
-  const formatPrice = (val) => {
-    const num = Number(val);
-    if (isNaN(num)) return '₹0.00';
-    return `₹${num.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-  };
-
   const handleAddToCart = async () => {
     if (!selectedVariant) {
       error('Please choose a color and size variant');
@@ -173,11 +167,16 @@ export default function ProductDetailPage() {
     }
   };
 
+  useEffect(() => {
+    if (!copiedLink) return undefined;
+    const timer = setTimeout(() => setCopiedLink(false), 3000);
+    return () => clearTimeout(timer);
+  }, [copiedLink]);
+
   const handleShare = () => {
     navigator.clipboard.writeText(window.location.href);
     setCopiedLink(true);
     success('Product link copied to clipboard');
-    setTimeout(() => setCopiedLink(false), 3000);
   };
 
   if (loading) {

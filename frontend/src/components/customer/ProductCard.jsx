@@ -1,24 +1,19 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { Link } from 'react-router-dom';
-import { Heart, Eye, ArrowRight } from 'lucide-react';
+import { Eye, Heart } from 'lucide-react';
 import { getImageUrl, FALLBACK_PRODUCT_IMAGE } from '../../config/apiConfig';
 import { useWishlist } from '../../context/WishlistContext';
+import { formatPrice } from '../../utils/format';
+import { colorToHex } from '../../utils/colors';
 import './ProductCard.css';
 
-export default function ProductCard({ product }) {
+function ProductCard({ product }) {
   const { isFavorite, toggleFavorite } = useWishlist();
 
   if (!product) return null;
 
   const imageUrl = getImageUrl(product.image) || FALLBACK_PRODUCT_IMAGE;
   const favorited = isFavorite(product.id);
-
-  // Format currency
-  const formatPrice = (val) => {
-    const num = Number(val);
-    if (isNaN(num)) return '₹0.00';
-    return `₹${num.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-  };
 
   const handleFavoriteClick = (e) => {
     e.preventDefault();
@@ -27,7 +22,7 @@ export default function ProductCard({ product }) {
   };
 
   return (
-    <div className="product-card">
+    <article className="product-card">
       <div className="product-image-wrap">
         <Link to={`/product/${product.id}`} className="product-image-link">
           <img
@@ -42,25 +37,21 @@ export default function ProductCard({ product }) {
           />
         </Link>
 
-        {/* Wishlist Button */}
         <button
           type="button"
           className={`product-wishlist-btn ${favorited ? 'active' : ''}`}
           onClick={handleFavoriteClick}
           aria-label={favorited ? 'Remove from wishlist' : 'Save to wishlist'}
-          title={favorited ? 'Remove from wishlist' : 'Save to wishlist'}
         >
           <Heart size={18} fill={favorited ? 'currentColor' : 'none'} />
         </button>
 
-        {/* Quick View Link */}
         <div className="product-overlay-actions">
           <Link to={`/product/${product.id}`} className="quick-view-btn">
-            <Eye size={15} /> Discover Silhouette
+            <Eye size={15} /> View product
           </Link>
         </div>
 
-        {/* Category Pill */}
         {product.category_name && (
           <span className="product-category-tag">{product.category_name}</span>
         )}
@@ -70,18 +61,19 @@ export default function ProductCard({ product }) {
         <h3 className="product-title">
           <Link to={`/product/${product.id}`}>{product.name}</Link>
         </h3>
-
-        {product.description && (
-          <p className="product-brief">{product.description}</p>
-        )}
-
         <div className="product-price-row">
           <span className="product-price">{formatPrice(product.price)}</span>
-          <Link to={`/product/${product.id}`} className="product-link-arrow">
-            <ArrowRight size={16} />
-          </Link>
         </div>
+        {product.colors?.length > 0 && (
+          <div className="product-color-dots" aria-label="Available colors">
+            {product.colors.slice(0, 5).map((color) => (
+              <span key={color} className="mini-dot" title={color} style={{ backgroundColor: colorToHex(color) }} />
+            ))}
+          </div>
+        )}
       </div>
-    </div>
+    </article>
   );
 }
+
+export default memo(ProductCard);

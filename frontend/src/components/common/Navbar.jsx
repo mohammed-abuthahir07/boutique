@@ -1,172 +1,190 @@
-import React, { useState, useEffect } from 'react';
-import { Link, NavLink, useNavigate, useLocation } from 'react-router-dom';
-import { ShoppingBag, Heart, User, Search, Menu, X, LogOut, Package, Shield } from 'lucide-react';
+import React, { useEffect, useRef, useState } from 'react';
+import { Link, NavLink, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
+import { Heart, LogOut, Menu, Package, Search, Shield, ShoppingBag, User, X } from 'lucide-react';
 import { useCustomerAuth } from '../../context/CustomerAuthContext';
 import { useCart } from '../../context/CartContext';
 import { useWishlist } from '../../context/WishlistContext';
+import { useCatalog } from '../../context/CatalogContext';
 import './Navbar.css';
 
 export default function Navbar() {
   const { customer, isAuthenticated, logout } = useCustomerAuth();
   const { itemCount } = useCart();
   const { count: wishlistCount } = useWishlist();
+  const { categories } = useCatalog();
   const navigate = useNavigate();
   const location = useLocation();
+  const [searchParams] = useSearchParams();
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [searchOpen, setSearchOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState(searchParams.get('q') || '');
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const dropdownRef = useRef(null);
+  const searchRef = useRef(null);
 
-  // Close menus on route change
   useEffect(() => {
     setMobileMenuOpen(false);
-    setSearchOpen(false);
     setUserDropdownOpen(false);
-  }, [location.pathname]);
+    if (location.pathname !== '/shop') {
+      setSearchQuery('');
+    } else {
+      setSearchQuery(searchParams.get('q') || '');
+    }
+  }, [location.pathname, searchParams]);
 
-  // Handle scroll shadow
   useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 20);
-    };
-    window.addEventListener('scroll', handleScroll);
+    const handleScroll = () => setScrolled(window.scrollY > 8);
+    window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  useEffect(() => {
+    const onClick = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setUserDropdownOpen(false);
+      }
+    };
+    const onKey = (e) => {
+      if (e.key === 'Escape') {
+        setUserDropdownOpen(false);
+        setMobileMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', onClick);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('mousedown', onClick);
+      document.removeEventListener('keydown', onKey);
+    };
   }, []);
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
-    if (searchQuery.trim()) {
-      navigate(`/shop?q=${encodeURIComponent(searchQuery.trim())}`);
-      setSearchOpen(false);
-      setSearchQuery('');
+    const q = searchQuery.trim();
+    navigate(q ? `/shop?q=${encodeURIComponent(q)}` : '/shop');
+    setMobileMenuOpen(false);
+  };
+
+  const clearSearch = () => {
+    setSearchQuery('');
+    if (location.pathname === '/shop') {
+      navigate('/shop');
     }
+    searchRef.current?.focus();
   };
 
   return (
     <header className={`header ${scrolled ? 'header-scrolled' : ''}`}>
-      {/* Top Luxury Announcement Bar */}
       <div className="announcement-bar">
         <div className="container announcement-content">
-          <span>Complimentary Express Delivery on Orders Across India • Haute Couture & Pret-a-Porter</span>
+          <span>Free insured delivery across India · Easy returns · Secure checkout</span>
           <Link to="/admin/login" className="admin-portal-link" title="Admin Portal">
             <Shield size={12} /> Admin
           </Link>
         </div>
       </div>
 
-      {/* Main Navigation */}
       <div className="navbar-wrapper">
         <div className="container navbar-container">
-          {/* Mobile Menu Toggle */}
           <button
             className="mobile-menu-btn"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            aria-label="Toggle Navigation Menu"
+            onClick={() => setMobileMenuOpen((open) => !open)}
+            aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
+            aria-expanded={mobileMenuOpen}
           >
             {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
 
-          {/* Boutique Brand Logo */}
-          <Link to="/" className="brand-logo">
+          <Link to="/" className="brand-logo" aria-label="Maison Boutique home">
             <span className="logo-main">MAISON</span>
             <span className="logo-sub">BOUTIQUE</span>
           </Link>
 
-          {/* Desktop Nav Links */}
-          <nav className="nav-links">
-            <NavLink to="/" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
-              Home
-            </NavLink>
-            <NavLink to="/shop" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
-              Shop
-            </NavLink>
-            <NavLink to="/categories" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
-              Categories
-            </NavLink>
-            <NavLink to="/gallery" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
-              Lookbook
-            </NavLink>
-            <NavLink to="/about" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
-              About
-            </NavLink>
-            <NavLink to="/contact" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
-              Contact
-            </NavLink>
-          </nav>
-
-          {/* Nav Actions */}
-          <div className="nav-actions">
-            {/* Search Trigger */}
-            <button
-              className="action-btn"
-              onClick={() => setSearchOpen(!searchOpen)}
-              aria-label="Search"
-              title="Search collection"
-            >
-              <Search size={20} />
+          <form onSubmit={handleSearchSubmit} className="header-search" role="search">
+            <Search size={18} className="header-search-icon" aria-hidden="true" />
+            <input
+              ref={searchRef}
+              type="search"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search for dresses, categories, styles..."
+              className="header-search-input"
+              aria-label="Search products"
+            />
+            {searchQuery && (
+              <button type="button" className="header-search-clear" onClick={clearSearch} aria-label="Clear search">
+                <X size={16} />
+              </button>
+            )}
+            <button type="submit" className="header-search-submit">
+              Search
             </button>
+          </form>
 
-            {/* Wishlist */}
-            <Link to="/wishlist" className="action-btn" aria-label="Wishlist" title="My Wishlist">
+          <div className="nav-actions">
+            <Link to="/wishlist" className="action-btn" aria-label="Wishlist">
               <Heart size={20} />
+              <span className="action-label">Wishlist</span>
               {wishlistCount > 0 && <span className="action-badge">{wishlistCount}</span>}
             </Link>
 
-            {/* Cart */}
-            <Link to="/cart" className="action-btn" aria-label="Shopping Cart" title="Shopping Cart">
+            <Link to="/cart" className="action-btn" aria-label="Cart">
               <ShoppingBag size={20} />
+              <span className="action-label">Cart</span>
               {itemCount > 0 && <span className="action-badge">{itemCount}</span>}
             </Link>
 
-            {/* User Account / Profile */}
-            <div className="user-dropdown-wrap">
+            <div className="user-dropdown-wrap" ref={dropdownRef}>
               <button
                 className="action-btn user-btn"
-                onClick={() => setUserDropdownOpen(!userDropdownOpen)}
+                onClick={() => setUserDropdownOpen((open) => !open)}
                 aria-label="Account menu"
+                aria-expanded={userDropdownOpen}
               >
                 <User size={20} />
-                {isAuthenticated && customer && (
-                  <span className="user-greeting">{customer.name.split(' ')[0]}</span>
-                )}
+                <span className="action-label">
+                  {isAuthenticated && customer ? customer.name.split(' ')[0] : 'Account'}
+                </span>
               </button>
 
               {userDropdownOpen && (
-                <div className="user-dropdown-menu">
+                <div className="user-dropdown-menu" role="menu">
                   {isAuthenticated && customer ? (
                     <>
                       <div className="dropdown-header">
                         <p className="dropdown-user-name">{customer.name}</p>
                         <p className="dropdown-user-email">{customer.email}</p>
                       </div>
-                      <div className="dropdown-divider"></div>
-                      <Link to="/profile" className="dropdown-item">
-                        <User size={16} /> My Profile
+                      <div className="dropdown-divider" />
+                      <Link to="/profile" className="dropdown-item" role="menuitem">
+                        <User size={16} /> Profile
                       </Link>
-                      <Link to="/orders" className="dropdown-item">
-                        <Package size={16} /> My Orders
+                      <Link to="/orders" className="dropdown-item" role="menuitem">
+                        <Package size={16} /> Orders
                       </Link>
-                      <Link to="/wishlist" className="dropdown-item">
-                        <Heart size={16} /> My Wishlist
+                      <Link to="/wishlist" className="dropdown-item" role="menuitem">
+                        <Heart size={16} /> Wishlist
                       </Link>
-                      <div className="dropdown-divider"></div>
-                      <button className="dropdown-item logout-btn" onClick={logout}>
-                        <LogOut size={16} /> Sign Out
+                      <Link to="/cart" className="dropdown-item" role="menuitem">
+                        <ShoppingBag size={16} /> Cart
+                      </Link>
+                      <div className="dropdown-divider" />
+                      <button className="dropdown-item logout-btn" onClick={logout} role="menuitem">
+                        <LogOut size={16} /> Logout
                       </button>
                     </>
                   ) : (
                     <>
                       <div className="dropdown-header">
-                        <p className="dropdown-user-name">Welcome to Maison</p>
-                        <p className="dropdown-user-email">Sign in for the best experience</p>
+                        <p className="dropdown-user-name">Welcome</p>
+                        <p className="dropdown-user-email">Sign in for a faster checkout</p>
                       </div>
-                      <div className="dropdown-divider"></div>
-                      <Link to="/login" className="dropdown-item primary-link">
+                      <div className="dropdown-divider" />
+                      <Link to="/login" className="dropdown-item primary-link" role="menuitem">
                         Sign In
                       </Link>
-                      <Link to="/register" className="dropdown-item">
+                      <Link to="/register" className="dropdown-item" role="menuitem">
                         Create Account
                       </Link>
                     </>
@@ -176,83 +194,80 @@ export default function Navbar() {
             </div>
           </div>
         </div>
-
-        {/* Expandable Search Drawer */}
-        {searchOpen && (
-          <div className="search-drawer">
-            <div className="container">
-              <form onSubmit={handleSearchSubmit} className="search-form">
-                <Search size={22} className="search-form-icon" />
-                <input
-                  type="text"
-                  placeholder="Search dresses, kurtas, couture, colors..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  autoFocus
-                  className="search-input"
-                />
-                <button type="submit" className="btn btn-accent btn-sm">
-                  Search
-                </button>
-                <button
-                  type="button"
-                  className="search-close-btn"
-                  onClick={() => setSearchOpen(false)}
-                >
-                  <X size={20} />
-                </button>
-              </form>
-            </div>
-          </div>
-        )}
       </div>
 
-      {/* Mobile Drawer */}
-      {mobileMenuOpen && (
-        <div className="mobile-drawer">
-          <nav className="mobile-nav">
-            <NavLink to="/" className="mobile-nav-link">
+      <div className="category-strip">
+        <div className="container category-strip-inner">
+          <nav className="nav-links" aria-label="Primary">
+            <NavLink to="/" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
               Home
             </NavLink>
-            <NavLink to="/shop" className="mobile-nav-link">
-              Shop All
+            <NavLink to="/shop" end className={({ isActive }) => `nav-link ${isActive && !searchParams.get('category') ? 'active' : ''}`}>
+              All Products
             </NavLink>
-            <NavLink to="/categories" className="mobile-nav-link">
+            {categories.slice(0, 6).map((cat) => (
+              <NavLink
+                key={cat.id}
+                to={`/shop?category=${encodeURIComponent(cat.id)}`}
+                className={() => `nav-link ${String(searchParams.get('category')) === String(cat.id) ? 'active' : ''}`}
+              >
+                {cat.name}
+              </NavLink>
+            ))}
+            <NavLink to="/categories" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
               Categories
             </NavLink>
-            <NavLink to="/gallery" className="mobile-nav-link">
-              Lookbook
+            <NavLink to="/gallery" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
+              Gallery
             </NavLink>
-            <NavLink to="/about" className="mobile-nav-link">
-              Our Story
+            <NavLink to="/about" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
+              About
             </NavLink>
-            <NavLink to="/contact" className="mobile-nav-link">
-              Contact & Atelier
+            <NavLink to="/contact" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
+              Contact
             </NavLink>
-            <div className="mobile-nav-divider"></div>
+          </nav>
+        </div>
+      </div>
+
+      {mobileMenuOpen && (
+        <div className="mobile-drawer">
+          <form onSubmit={handleSearchSubmit} className="mobile-search" role="search">
+            <Search size={16} aria-hidden="true" />
+            <input
+              type="search"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search products"
+              aria-label="Search products"
+            />
+            <button type="submit" className="btn btn-accent btn-sm">Go</button>
+          </form>
+          <nav className="mobile-nav" aria-label="Mobile">
+            <NavLink to="/" className="mobile-nav-link">Home</NavLink>
+            <NavLink to="/shop" className="mobile-nav-link">Shop All</NavLink>
+            {categories.map((cat) => (
+              <NavLink key={cat.id} to={`/shop?category=${encodeURIComponent(cat.id)}`} className="mobile-nav-link">
+                {cat.name}
+              </NavLink>
+            ))}
+            <NavLink to="/categories" className="mobile-nav-link">Categories</NavLink>
+            <NavLink to="/gallery" className="mobile-nav-link">Gallery</NavLink>
+            <NavLink to="/about" className="mobile-nav-link">About</NavLink>
+            <NavLink to="/contact" className="mobile-nav-link">Contact</NavLink>
+            <div className="mobile-nav-divider" />
             {isAuthenticated ? (
               <>
-                <NavLink to="/profile" className="mobile-nav-link">
-                  My Profile ({customer?.name})
-                </NavLink>
-                <NavLink to="/orders" className="mobile-nav-link">
-                  My Orders
-                </NavLink>
-                <NavLink to="/wishlist" className="mobile-nav-link">
-                  Wishlist ({wishlistCount})
-                </NavLink>
-                <button className="mobile-nav-link mobile-logout" onClick={logout}>
-                  Sign Out
-                </button>
+                <NavLink to="/profile" className="mobile-nav-link">Profile</NavLink>
+                <NavLink to="/orders" className="mobile-nav-link">Orders</NavLink>
+                <NavLink to="/wishlist" className="mobile-nav-link">Wishlist ({wishlistCount})</NavLink>
+                <NavLink to="/cart" className="mobile-nav-link">Cart ({itemCount})</NavLink>
+                <button className="mobile-nav-link mobile-logout" onClick={logout}>Logout</button>
               </>
             ) : (
               <>
-                <NavLink to="/login" className="mobile-nav-link font-semibold">
-                  Sign In
-                </NavLink>
-                <NavLink to="/register" className="mobile-nav-link">
-                  Create Account
-                </NavLink>
+                <NavLink to="/login" className="mobile-nav-link font-semibold">Sign In</NavLink>
+                <NavLink to="/register" className="mobile-nav-link">Create Account</NavLink>
               </>
             )}
           </nav>

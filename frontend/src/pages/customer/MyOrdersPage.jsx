@@ -5,6 +5,8 @@ import customerService from '../../services/customerService';
 import Loader from '../../components/common/Loader';
 import EmptyState from '../../components/common/EmptyState';
 import Breadcrumbs from '../../components/common/Breadcrumbs';
+import AccountNav from '../../components/common/AccountNav';
+import { formatDate, formatPrice } from '../../utils/format';
 import './MyOrdersPage.css';
 
 export default function MyOrdersPage() {
@@ -41,27 +43,13 @@ export default function MyOrdersPage() {
     };
   }, []);
 
-  const formatPrice = (val) => {
-    const num = Number(val);
-    if (isNaN(num)) return '₹0.00';
-    return `₹${num.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-  };
-
-  const formatDate = (dateStr) => {
-    if (!dateStr) return '';
-    const d = new Date(dateStr);
-    return d.toLocaleDateString('en-IN', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-    });
-  };
-
   return (
     <div className="orders-page">
-      <Breadcrumbs items={[{ label: 'Client Account', link: '/profile' }, { label: 'My Orders' }]} />
+      <Breadcrumbs items={[{ label: 'Account', link: '/profile' }, { label: 'Orders' }]} />
 
-      <div className="container orders-container">
+      <div className="container orders-container account-page-layout">
+        <AccountNav />
+        <div>
         <div className="orders-header">
           <span className="section-subtitle">Atelier Acquisitions</span>
           <h1 className="orders-title">Your Order History</h1>
@@ -140,6 +128,7 @@ export default function MyOrdersPage() {
             ))}
           </div>
         )}
+        </div>
       </div>
     </div>
   );

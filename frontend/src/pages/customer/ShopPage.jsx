@@ -1,310 +1,289 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Filter, Search, SlidersHorizontal, ArrowUpDown, X } from 'lucide-react';
-import publicService from '../../services/publicService';
-import ProductGrid from '../../components/customer/ProductGrid';
-import Loader from '../../components/common/Loader';
+import { SlidersHorizontal, X } from 'lucide-react';
+import ProductGrid, { ProductGridSkeleton } from '../../components/customer/ProductGrid';
 import EmptyState from '../../components/common/EmptyState';
 import Breadcrumbs from '../../components/common/Breadcrumbs';
+import { useCatalog } from '../../context/CatalogContext';
+import useDebouncedValue from '../../hooks/useDebouncedValue';
+import { colorToHex } from '../../utils/colors';
 import './ShopPage.css';
+
+const PRICE_FILTERS = [
+  { id: '', label: 'Any price' },
+  { id: '0-2000', label: 'Under ₹2,000' },
+  { id: '2000-5000', label: '₹2,000 – ₹5,000' },
+  { id: '5000-10000', label: '₹5,000 – ₹10,000' },
+  { id: '10000+', label: 'Above ₹10,000' },
+];
+
+function matchesPrice(product, priceFilter) {
+  if (!priceFilter) return true;
+  const price = Number(product.price);
+  if (priceFilter === '10000+') return price > 10000;
+  const [min, max] = priceFilter.split('-').map(Number);
+  return price >= min && price <= max;
+}
 
 export default function ShopPage() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const { products, categories, colors, loading, error, refresh } = useCatalog();
 
-  // Filters
-  const queryParam = searchParams.get('q') || '';
-  const categoryParam = searchParams.get('category') || '';
-
-  const [searchTerm, setSearchTerm] = useState(queryParam);
-  const [selectedCategory, setSelectedCategory] = useState(categoryParam);
-  const [sortBy, setSortBy] = useState('featured'); // 'featured', 'price-low', 'price-high', 'name-asc'
+  const [searchTerm, setSearchTerm] = useState(searchParams.get('q') || '');
+  const [selectedCategory, setSelectedCategory] = useState(searchParams.get('category') || '');
+  const [selectedColor, setSelectedColor] = useState(searchParams.get('color') || '');
+  const [priceFilter, setPriceFilter] = useState('');
+  const [sortBy, setSortBy] = useState('featured');
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
+  const debouncedSearch = useDebouncedValue(searchTerm, 300);
 
-  // Sync URL search params
   useEffect(() => {
     setSearchTerm(searchParams.get('q') || '');
     setSelectedCategory(searchParams.get('category') || '');
+    setSelectedColor(searchParams.get('color') || '');
   }, [searchParams]);
 
-  // Fetch products from public API
   useEffect(() => {
-    let isMounted = true;
-    async function fetchProducts() {
-      try {
-        setLoading(true);
-        setError(null);
-        const res = await publicService.getProducts();
-        if (isMounted) {
-          if (res.success && Array.isArray(res.products)) {
-            setProducts(res.products);
-          } else {
-            setProducts([]);
-          }
-        }
-      } catch (err) {
-        if (isMounted) {
-          setError(err.message || 'Failed to load products from atelier.');
-        }
-      } finally {
-        if (isMounted) setLoading(false);
-      }
+    const next = new URLSearchParams(searchParams);
+    if (debouncedSearch.trim()) next.set('q', debouncedSearch.trim());
+    else next.delete('q');
+    if ((searchParams.get('q') || '') !== debouncedSearch.trim()) {
+      setSearchParams(next, { replace: true });
     }
+  }, [debouncedSearch, searchParams, setSearchParams]);
 
-    fetchProducts();
-    return () => {
-      isMounted = false;
-    };
-  }, []);
-
-  // Extract distinct categories
-  const categories = useMemo(() => {
-    const map = new Map();
-    products.forEach((p) => {
-      if (p.category_id && p.category_name) {
-        map.set(String(p.category_id), p.category_name);
-      }
-    });
-    return Array.from(map.entries()).map(([id, name]) => ({ id, name }));
-  }, [products]);
-
-  // Filter & Sort Logic
   const filteredProducts = useMemo(() => {
     return products
       .filter((p) => {
-        // Search match
+        const q = searchTerm.trim().toLowerCase();
         const matchesSearch =
-          !searchTerm.trim() ||
-          p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          (p.description && p.description.toLowerCase().includes(searchTerm.toLowerCase())) ||
-          (p.category_name && p.category_name.toLowerCase().includes(searchTerm.toLowerCase()));
-
-        // Category match
-        const matchesCategory =
-          !selectedCategory ||
-          String(p.category_id) === String(selectedCategory);
-
-        return matchesSearch && matchesCategory;
+          !q ||
+          p.name.toLowerCase().includes(q) ||
+          (p.description && p.description.toLowerCase().includes(q)) ||
+          (p.category_name && p.category_name.toLowerCase().includes(q));
+        const matchesCategory = !selectedCategory || String(p.category_id) === String(selectedCategory);
+        const matchesColor =
+          !selectedColor ||
+          (p.colors || []).some((c) => c.toLowerCase() === selectedColor.toLowerCase());
+        return matchesSearch && matchesCategory && matchesColor && matchesPrice(p, priceFilter);
       })
       .sort((a, b) => {
-        if (sortBy === 'price-low') {
-          return Number(a.price) - Number(b.price);
-        }
-        if (sortBy === 'price-high') {
-          return Number(b.price) - Number(a.price);
-        }
-        if (sortBy === 'name-asc') {
-          return a.name.localeCompare(b.name);
-        }
-        return b.id - a.id; // 'featured' (newest database ID first)
+        if (sortBy === 'price-low') return Number(a.price) - Number(b.price);
+        if (sortBy === 'price-high') return Number(b.price) - Number(a.price);
+        if (sortBy === 'name-asc') return a.name.localeCompare(b.name);
+        return b.id - a.id;
       });
-  }, [products, searchTerm, selectedCategory, sortBy]);
+  }, [products, searchTerm, selectedCategory, selectedColor, sortBy, priceFilter]);
+
+  const updateParam = (key, value) => {
+    const next = new URLSearchParams(searchParams);
+    if (value) next.set(key, value);
+    else next.delete(key);
+    setSearchParams(next);
+  };
 
   const handleCategorySelect = (catId) => {
     setSelectedCategory(catId);
-    const newParams = new URLSearchParams(searchParams);
-    if (catId) {
-      newParams.set('category', catId);
-    } else {
-      newParams.delete('category');
-    }
-    setSearchParams(newParams);
+    updateParam('category', catId);
   };
 
-  const handleSearchChange = (e) => {
-    const val = e.target.value;
-    setSearchTerm(val);
-    const newParams = new URLSearchParams(searchParams);
-    if (val.trim()) {
-      newParams.set('q', val.trim());
-    } else {
-      newParams.delete('q');
-    }
-    setSearchParams(newParams);
+  const handleColorSelect = (color) => {
+    const next = selectedColor.toLowerCase() === color.toLowerCase() ? '' : color;
+    setSelectedColor(next);
+    updateParam('color', next);
   };
 
   const clearAllFilters = () => {
     setSearchTerm('');
     setSelectedCategory('');
+    setSelectedColor('');
+    setPriceFilter('');
     setSortBy('featured');
     setSearchParams({});
   };
 
-  return (
-    <div className="shop-page">
-      <Breadcrumbs items={[{ label: 'Shop Collection' }]} />
+  const hasFilters = Boolean(selectedCategory || searchTerm || priceFilter || selectedColor);
 
-      {/* Page Header */}
+  return (
+    <div className="shop-page page-enter">
+      <Breadcrumbs items={[{ label: 'Shop' }]} />
+
       <div className="shop-header">
-        <div className="container shop-header-container">
-          <div className="shop-header-content">
-            <span className="section-subtitle">Pret-a-Porter & Couture</span>
-            <h1 className="shop-title">The Complete Collection</h1>
-            <p className="shop-subtitle">
-              Browse our handcrafted silhouettes, from flowing organza dresses to meticulously tailored ethnic ensembles.
-            </p>
-          </div>
+        <div className="container">
+          <h1 className="shop-title">Shop</h1>
+          <p className="shop-subtitle">Filter by category, color, or price — just like a real store.</p>
         </div>
       </div>
 
       <div className="container shop-main-container">
-        {/* Toolbar */}
         <div className="shop-toolbar">
-          <div className="toolbar-left">
-            <button
-              type="button"
-              className="mobile-filter-trigger"
-              onClick={() => setMobileFilterOpen(!mobileFilterOpen)}
-            >
-              <SlidersHorizontal size={16} /> Filters
-              {(selectedCategory || searchTerm) && <span className="filter-active-dot"></span>}
-            </button>
-            <p className="product-count-text">
-              Showing <strong>{filteredProducts.length}</strong> of <strong>{products.length}</strong> creations
-            </p>
-          </div>
-
-          <div className="toolbar-right">
-            {/* Search within shop */}
-            <div className="shop-search-box">
-              <Search size={16} className="shop-search-icon" />
-              <input
-                type="text"
-                placeholder="Search collection..."
-                value={searchTerm}
-                onChange={handleSearchChange}
-                className="shop-search-input"
-              />
-              {searchTerm && (
-                <button
-                  type="button"
-                  className="shop-search-clear"
-                  onClick={() => handleSearchChange({ target: { value: '' } })}
-                >
-                  <X size={14} />
-                </button>
-              )}
-            </div>
-
-            {/* Sort Dropdown */}
-            <div className="sort-box">
-              <label htmlFor="shop-sort" className="sort-label">
-                <ArrowUpDown size={14} /> Sort:
-              </label>
-              <select
-                id="shop-sort"
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
-                className="sort-select"
-              >
-                <option value="featured">Featured / Newest</option>
-                <option value="price-low">Price: Low to High</option>
-                <option value="price-high">Price: High to Low</option>
-                <option value="name-asc">Name: A to Z</option>
-              </select>
-            </div>
-          </div>
+          <p className="product-count-text">
+            <strong>{filteredProducts.length}</strong> results
+          </p>
+          <select
+            id="shop-sort"
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value)}
+            className="sort-select"
+            aria-label="Sort products"
+          >
+            <option value="featured">Newest</option>
+            <option value="price-low">Price: Low to High</option>
+            <option value="price-high">Price: High to Low</option>
+            <option value="name-asc">Name: A to Z</option>
+          </select>
         </div>
 
-        {/* Active Filters Bar */}
-        {(selectedCategory || searchTerm) && (
+        {hasFilters && (
           <div className="active-filters-bar">
-            <span className="active-filters-title">Active Filters:</span>
             {selectedCategory && (
               <span className="active-filter-chip">
-                Category: {categories.find((c) => String(c.id) === String(selectedCategory))?.name || selectedCategory}
-                <button type="button" onClick={() => handleCategorySelect('')}>
+                {categories.find((c) => String(c.id) === String(selectedCategory))?.name || selectedCategory}
+                <button type="button" onClick={() => handleCategorySelect('')} aria-label="Remove category">
+                  <X size={12} />
+                </button>
+              </span>
+            )}
+            {selectedColor && (
+              <span className="active-filter-chip">
+                {selectedColor}
+                <button type="button" onClick={() => handleColorSelect(selectedColor)} aria-label="Remove color">
                   <X size={12} />
                 </button>
               </span>
             )}
             {searchTerm && (
               <span className="active-filter-chip">
-                Query: "{searchTerm}"
-                <button type="button" onClick={() => handleSearchChange({ target: { value: '' } })}>
+                “{searchTerm}”
+                <button type="button" onClick={() => setSearchTerm('')} aria-label="Remove search">
+                  <X size={12} />
+                </button>
+              </span>
+            )}
+            {priceFilter && (
+              <span className="active-filter-chip">
+                {PRICE_FILTERS.find((p) => p.id === priceFilter)?.label}
+                <button type="button" onClick={() => setPriceFilter('')} aria-label="Remove price">
                   <X size={12} />
                 </button>
               </span>
             )}
             <button type="button" className="clear-all-link" onClick={clearAllFilters}>
-              Clear All
+              Clear all
             </button>
           </div>
         )}
 
-        {/* Layout Grid */}
+        {mobileFilterOpen && (
+          <button type="button" className="filter-backdrop" aria-label="Close filters" onClick={() => setMobileFilterOpen(false)} />
+        )}
+
         <div className="shop-layout">
-          {/* Category Filter Sidebar */}
           <aside className={`shop-sidebar ${mobileFilterOpen ? 'mobile-open' : ''}`}>
             <div className="sidebar-header">
-              <h3 className="sidebar-title">Categories</h3>
-              <button
-                type="button"
-                className="sidebar-close-btn"
-                onClick={() => setMobileFilterOpen(false)}
-              >
-                <X size={18} />
+              <h3 className="sidebar-title">Filters</h3>
+              <button type="button" className="sidebar-close-btn" onClick={() => setMobileFilterOpen(false)} aria-label="Close filters">
+                <X size={20} />
               </button>
             </div>
 
-            <div className="category-filter-list">
-              <button
-                type="button"
-                className={`cat-filter-btn ${!selectedCategory ? 'active' : ''}`}
-                onClick={() => handleCategorySelect('')}
-              >
-                <span>All Collections</span>
-                <span className="cat-count-badge">{products.length}</span>
-              </button>
-              {categories.map((cat) => {
-                const count = products.filter((p) => String(p.category_id) === String(cat.id)).length;
-                return (
-                  <button
-                    key={cat.id}
-                    type="button"
-                    className={`cat-filter-btn ${String(selectedCategory) === String(cat.id) ? 'active' : ''}`}
-                    onClick={() => handleCategorySelect(cat.id)}
-                  >
-                    <span>{cat.name}</span>
-                    <span className="cat-count-badge">{count}</span>
-                  </button>
-                );
-              })}
-            </div>
+            <section className="filter-group">
+              <h4 className="sidebar-title">Category</h4>
+              <label className="filter-check">
+                <input type="radio" name="category" checked={!selectedCategory} onChange={() => handleCategorySelect('')} />
+                <span>All products</span>
+                <em>{products.length}</em>
+              </label>
+              {categories.map((cat) => (
+                <label key={cat.id} className="filter-check">
+                  <input
+                    type="radio"
+                    name="category"
+                    checked={String(selectedCategory) === String(cat.id)}
+                    onChange={() => handleCategorySelect(cat.id)}
+                  />
+                  <span>{cat.name}</span>
+                  <em>{cat.count}</em>
+                </label>
+              ))}
+            </section>
 
-            <div className="sidebar-craft-promo">
-              <span className="promo-tag">Bespoke Atelier</span>
-              <p className="promo-text">
-                Every piece is tailored to perfection. For customized sizing or bridal orders, speak with our styling team.
-              </p>
-            </div>
+            {colors.length > 0 && (
+              <section className="filter-group">
+                <h4 className="sidebar-title">Color</h4>
+                <div className="color-swatch-list">
+                  {colors.map((color) => {
+                    const active = selectedColor.toLowerCase() === color.name.toLowerCase();
+                    return (
+                      <button
+                        key={color.name}
+                        type="button"
+                        className={`color-swatch ${active ? 'active' : ''}`}
+                        onClick={() => handleColorSelect(color.name)}
+                        title={color.name}
+                      >
+                        <span className="color-dot" style={{ backgroundColor: colorToHex(color.name) }} />
+                        <span>{color.name}</span>
+                        <em>{color.count}</em>
+                      </button>
+                    );
+                  })}
+                </div>
+              </section>
+            )}
+
+            <section className="filter-group">
+              <h4 className="sidebar-title">Price</h4>
+              {PRICE_FILTERS.map((opt) => (
+                <label key={opt.id || 'any'} className="filter-check">
+                  <input
+                    type="radio"
+                    name="price"
+                    checked={priceFilter === opt.id}
+                    onChange={() => setPriceFilter(opt.id)}
+                  />
+                  <span>{opt.label}</span>
+                </label>
+              ))}
+            </section>
+
+            <button type="button" className="btn btn-primary apply-filters-btn" onClick={() => setMobileFilterOpen(false)}>
+              Show {filteredProducts.length} products
+            </button>
           </aside>
 
-          {/* Product Grid Area */}
-          <main className="shop-products-main">
+          <div className="shop-products-main">
             {loading ? (
-              <Loader message="Retrieving boutique pieces..." />
+              <ProductGridSkeleton count={8} />
             ) : error ? (
               <div className="shop-error">
-                <p>{error}</p>
-                <button type="button" onClick={() => window.location.reload()} className="btn btn-outline btn-sm">
-                  Retry
-                </button>
+                <p>We could not load products. Please try again.</p>
+                <button type="button" onClick={refresh} className="btn btn-outline btn-sm">Retry</button>
               </div>
             ) : filteredProducts.length > 0 ? (
               <ProductGrid products={filteredProducts} />
             ) : (
               <EmptyState
-                title="No creations match your filter"
-                description="We could not find any garments matching your search or category selection. Try selecting another filter or clearing your query."
-                actionText="View All Creations"
+                title="No products match"
+                description="Try another color, category, or price range."
+                actionText="Clear filters"
                 onActionClick={clearAllFilters}
               />
             )}
-          </main>
+          </div>
         </div>
+      </div>
+
+      <div className="mobile-shop-bar">
+        <button type="button" onClick={() => setMobileFilterOpen(true)}>
+          <SlidersHorizontal size={16} /> Filter
+        </button>
+        <select value={sortBy} onChange={(e) => setSortBy(e.target.value)} aria-label="Sort">
+          <option value="featured">Newest</option>
+          <option value="price-low">Price: Low to High</option>
+          <option value="price-high">Price: High to Low</option>
+          <option value="name-asc">Name: A to Z</option>
+        </select>
       </div>
     </div>
   );

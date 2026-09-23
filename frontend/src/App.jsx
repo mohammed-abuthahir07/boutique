@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 
 // Providers
@@ -19,35 +19,35 @@ import AdminLayout from './components/admin/AdminLayout';
 // Customer Pages
 import HomePage from './pages/customer/HomePage';
 import ShopPage from './pages/customer/ShopPage';
-import CategoriesPage from './pages/customer/CategoriesPage';
 import ProductDetailPage from './pages/customer/ProductDetailPage';
-import AboutPage from './pages/customer/AboutPage';
-import GalleryPage from './pages/customer/GalleryPage';
-import ContactPage from './pages/customer/ContactPage';
 import LoginPage from './pages/customer/LoginPage';
 import RegisterPage from './pages/customer/RegisterPage';
-import CartPage from './pages/customer/CartPage';
-import CheckoutPage from './pages/customer/CheckoutPage';
-import OrderSuccessPage from './pages/customer/OrderSuccessPage';
-import MyOrdersPage from './pages/customer/MyOrdersPage';
-import OrderDetailPage from './pages/customer/OrderDetailPage';
-import WishlistPage from './pages/customer/WishlistPage';
-import ProfilePage from './pages/customer/ProfilePage';
 import NotFoundPage from './pages/customer/NotFoundPage';
-
-// Admin Pages
 import AdminLoginPage from './pages/admin/AdminLoginPage';
-import AdminDashboardPage from './pages/admin/AdminDashboardPage';
-import AdminCategoriesPage from './pages/admin/AdminCategoriesPage';
-import AdminProductsPage from './pages/admin/AdminProductsPage';
-import AdminProductFormPage from './pages/admin/AdminProductFormPage';
-import AdminProductDetailPage from './pages/admin/AdminProductDetailPage';
-import AdminOffersPage from './pages/admin/AdminOffersPage';
-import AdminOrdersPage from './pages/admin/AdminOrdersPage';
-import AdminOrderDetailPage from './pages/admin/AdminOrderDetailPage';
-import AdminInventoryPage from './pages/admin/AdminInventoryPage';
-import AdminAnalyticsPage from './pages/admin/AdminAnalyticsPage';
-import AdminCustomersPage from './pages/admin/AdminCustomersPage';
+import Loader from './components/common/Loader';
+
+const CategoriesPage = lazy(() => import('./pages/customer/CategoriesPage'));
+const AboutPage = lazy(() => import('./pages/customer/AboutPage'));
+const GalleryPage = lazy(() => import('./pages/customer/GalleryPage'));
+const ContactPage = lazy(() => import('./pages/customer/ContactPage'));
+const CartPage = lazy(() => import('./pages/customer/CartPage'));
+const CheckoutPage = lazy(() => import('./pages/customer/CheckoutPage'));
+const OrderSuccessPage = lazy(() => import('./pages/customer/OrderSuccessPage'));
+const MyOrdersPage = lazy(() => import('./pages/customer/MyOrdersPage'));
+const OrderDetailPage = lazy(() => import('./pages/customer/OrderDetailPage'));
+const WishlistPage = lazy(() => import('./pages/customer/WishlistPage'));
+const ProfilePage = lazy(() => import('./pages/customer/ProfilePage'));
+const AdminDashboardPage = lazy(() => import('./pages/admin/AdminDashboardPage'));
+const AdminCategoriesPage = lazy(() => import('./pages/admin/AdminCategoriesPage'));
+const AdminProductsPage = lazy(() => import('./pages/admin/AdminProductsPage'));
+const AdminProductFormPage = lazy(() => import('./pages/admin/AdminProductFormPage'));
+const AdminProductDetailPage = lazy(() => import('./pages/admin/AdminProductDetailPage'));
+const AdminOffersPage = lazy(() => import('./pages/admin/AdminOffersPage'));
+const AdminOrdersPage = lazy(() => import('./pages/admin/AdminOrdersPage'));
+const AdminOrderDetailPage = lazy(() => import('./pages/admin/AdminOrderDetailPage'));
+const AdminInventoryPage = lazy(() => import('./pages/admin/AdminInventoryPage'));
+const AdminAnalyticsPage = lazy(() => import('./pages/admin/AdminAnalyticsPage'));
+const AdminCustomersPage = lazy(() => import('./pages/admin/AdminCustomersPage'));
 
 import './App.css';
 
@@ -61,6 +61,7 @@ export default function App() {
             <WishlistProvider>
               <CartProvider>
                 <div className="app-container">
+                  <Suspense fallback={<div className="page-suspense"><Loader message="Loading..." /></div>}>
                   <Routes>
                     {/* ============================================================ */}
                     {/* ADMIN PUBLIC ROUTES                                          */}
@@ -170,6 +171,7 @@ export default function App() {
                       <Route path="*" element={<NotFoundPage />} />
                     </Route>
                   </Routes>
+                  </Suspense>
                 </div>
               </CartProvider>
             </WishlistProvider>

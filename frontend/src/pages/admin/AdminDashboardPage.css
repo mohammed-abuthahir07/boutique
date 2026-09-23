@@ -13,9 +13,19 @@
 }
 
 .admin-view-title {
-  font-size: 2rem;
-  color: var(--color-primary);
+  font-family: var(--font-admin);
+  font-size: 1.6rem;
+  color: #111827;
   line-height: 1.2;
+}
+
+.stat-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
 }
 
 .stats-grid {

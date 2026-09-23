@@ -41,11 +41,12 @@
 }
 
 .hero-heading {
-  font-size: 3.6rem;
+  font-size: clamp(2rem, 5vw, 3.4rem);
   color: #ffffff;
   line-height: 1.15;
   margin-bottom: 20px;
   font-weight: 600;
+  letter-spacing: 0;
 }
 
 .hero-description {
@@ -476,7 +477,12 @@
   }
 
   .pillars-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .hero-section {
+    min-height: 68vh;
   }
 
   .hero-buttons {

@@ -5,6 +5,7 @@ import { useToast } from '../../context/ToastContext';
 import customerService from '../../services/customerService';
 import Loader from '../../components/common/Loader';
 import Breadcrumbs from '../../components/common/Breadcrumbs';
+import AccountNav from '../../components/common/AccountNav';
 import { getImageUrl, FALLBACK_AVATAR } from '../../config/apiConfig';
 import './ProfilePage.css';
 
@@ -97,7 +98,9 @@ export default function ProfilePage() {
     <div className="profile-page">
       <Breadcrumbs items={[{ label: 'Client Portfolio' }]} />
 
-      <div className="container profile-container">
+      <div className="container profile-container account-page-layout">
+        <AccountNav />
+        <div>
         <div className="profile-header">
           <span className="section-subtitle">Private Atelier Membership</span>
           <h1 className="profile-title">Personal Account & Preferences</h1>
@@ -204,6 +207,7 @@ export default function ProfilePage() {
               </form>
             </div>
           </div>
+        </div>
         </div>
       </div>
     </div>
