@@ -21,6 +21,14 @@ export const publicService = {
   },
 
   /**
+   * Get all active public categories.
+   * Returns { success: true, count: number, categories: [...] }
+   */
+  async getCategories() {
+    return apiClient.get('/api/public/categories');
+  },
+
+  /**
    * Get all active public offers.
    * Returns { success: true, count: number, offers: [...] }
    */

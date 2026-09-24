@@ -1,6 +1,5 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import publicService from '../services/publicService';
-import adminService from '../services/adminService';
 import { extractProductColors, extractProductSizes, sortSizes } from '../utils/colors';
 
 const CatalogContext = createContext(null);
@@ -32,7 +31,7 @@ async function enrichWithColors(listed) {
 export function CatalogProvider({ children }) {
   const [products, setProducts] = useState([]);
   const [offers, setOffers] = useState([]);
-  const [categoryImages, setCategoryImages] = useState({});
+  const [publicCategories, setPublicCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const cacheAtRef = useRef(0);
@@ -56,7 +55,7 @@ export function CatalogProvider({ children }) {
         const [prodRes, offerRes, catRes] = await Promise.allSettled([
           publicService.getProducts(),
           publicService.getOffers(),
-          adminService.getCategories(),
+          publicService.getCategories(),
         ]);
 
         let listed = [];
@@ -72,13 +71,7 @@ export function CatalogProvider({ children }) {
         }
 
         if (catRes.status === 'fulfilled' && catRes.value.success && Array.isArray(catRes.value.categories)) {
-          const imageMap = {};
-          catRes.value.categories.forEach((cat) => {
-            if (cat?.id != null) {
-              imageMap[String(cat.id)] = cat.image || null;
-            }
-          });
-          setCategoryImages(imageMap);
+          setPublicCategories(catRes.value.categories);
         }
 
         setLoading(false);
@@ -106,28 +99,22 @@ export function CatalogProvider({ children }) {
   }, [loadCatalog]);
 
   const categories = useMemo(() => {
-    const map = new Map();
+    const counts = new Map();
     products.forEach((p) => {
-      if (p.category_id && p.category_name) {
+      if (p.category_id) {
         const key = String(p.category_id);
-        const existing = map.get(key);
-        if (existing) {
-          existing.count += 1;
-          if (!existing.image) {
-            existing.image = categoryImages[key] || null;
-          }
-        } else {
-          map.set(key, {
-            id: p.category_id,
-            name: p.category_name,
-            image: categoryImages[key] || null,
-            count: 1,
-          });
-        }
+        counts.set(key, (counts.get(key) || 0) + 1);
       }
     });
-    return Array.from(map.values());
-  }, [products, categoryImages]);
+
+    return publicCategories.map((cat) => ({
+      id: cat.id,
+      name: cat.name,
+      slug: cat.slug,
+      image: cat.image || null,
+      count: counts.get(String(cat.id)) || 0,
+    }));
+  }, [products, publicCategories]);
 
   const sizes = useMemo(() => {
     const map = new Map();

@@ -42,6 +42,15 @@ export default function Navbar() {
   }, []);
 
   useEffect(() => {
+    if (!mobileMenuOpen) return undefined;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = previousOverflow && previousOverflow !== 'hidden' ? previousOverflow : '';
+    };
+  }, [mobileMenuOpen]);
+
+  useEffect(() => {
     const onClick = (e) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
         setUserDropdownOpen(false);
@@ -84,7 +93,7 @@ export default function Navbar() {
   };
 
   return (
-    <header className={`header ${scrolled ? 'header-scrolled' : ''}`}>
+    <header className={`header ${scrolled ? 'header-scrolled' : ''} ${mobileMenuOpen ? 'header-menu-open' : ''}`}>
       <div className="announcement-bar">
         <div className="container announcement-content">
           <span>Free insured delivery across India · Easy returns · Secure checkout</span>

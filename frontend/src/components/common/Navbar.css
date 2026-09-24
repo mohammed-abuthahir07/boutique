@@ -411,8 +411,21 @@
     padding: 8px 14px;
   }
 
+  .header.header-menu-open {
+    max-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
   .mobile-drawer {
     display: block;
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px));
   }
 
   .mobile-search {

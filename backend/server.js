@@ -16,6 +16,7 @@ const customerRoutes = require("./admin/routes/customerRoutes");
 const customerAuthRoutes = require("./customer/routes/customerauthRoutes");
 const publicProductRoutes = require("./public/routes/productRoutes");
 const publicOfferRoutes = require("./public/routes/offerRoutes");
+const publicCategoryRoutes = require("./public/routes/categoryRoutes");
 const customerProfileRoutes = require("./customer/routes/profileRoutes");
 const customerFavoriteRoutes = require("./customer/routes/favoriteRoutes");
 const customerCartRoutes = require("./customer/routes/cartRoutes");
@@ -44,6 +45,7 @@ app.use("/api/customer/auth", customerAuthRoutes);
 // Public Side
 app.use( "/api/public/products", publicProductRoutes);
 app.use("/api/public/offers", publicOfferRoutes);
+app.use("/api/public/categories", publicCategoryRoutes);
 
 // Customer side
 app.use("/api/customer/profile", customerProfileRoutes);
