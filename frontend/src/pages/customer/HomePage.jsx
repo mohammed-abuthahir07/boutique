@@ -85,14 +85,15 @@ export default function HomePage() {
             </div>
 
             <div className="categories-grid">
-              {categories.map((cat) => (
+              {categories.slice(0, 5).map((cat) => (
                 <Link
                   key={cat.id}
                   to={`/shop?category=${encodeURIComponent(cat.id)}`}
                   className="category-tile"
                 >
-                  <CategoryCover category={cat} alt={cat.name} />
-                  <div className="category-tile-overlay"></div>
+                  <div className="category-tile-media">
+                    <CategoryCover category={cat} alt={cat.name} />
+                  </div>
                   <div className="category-tile-content">
                     <span className="cat-count">Atelier Curations</span>
                     <h3 className="category-tile-title">{cat.name}</h3>

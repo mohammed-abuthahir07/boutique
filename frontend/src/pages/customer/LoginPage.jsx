@@ -1,10 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { Mail, Lock, ArrowRight, ShieldCheck, AlertCircle } from 'lucide-react';
+import { Mail, Lock, ArrowRight, AlertCircle, Eye, EyeOff, X } from 'lucide-react';
 import { useCustomerAuth } from '../../context/CustomerAuthContext';
 import { useToast } from '../../context/ToastContext';
 import { GOOGLE_CLIENT_ID } from '../../config/apiConfig';
-import Breadcrumbs from '../../components/common/Breadcrumbs';
 import './LoginPage.css';
 
 export default function LoginPage() {
@@ -18,18 +17,17 @@ export default function LoginPage() {
     email: '',
     password: '',
   });
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const googleBtnRef = useRef(null);
 
-  // If already authenticated, redirect
   useEffect(() => {
     if (isAuthenticated) {
       navigate(redirectPath, { replace: true });
     }
   }, [isAuthenticated, navigate, redirectPath]);
 
-  // Google Login initialization
   useEffect(() => {
     if (window.google?.accounts?.id && GOOGLE_CLIENT_ID) {
       try {
@@ -94,95 +92,95 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="login-page">
-      <Breadcrumbs items={[{ label: 'Sign In' }]} />
+    <div className="auth-standalone">
+      <div className="auth-card">
+        <Link to="/" className="auth-close" aria-label="Back to home page">
+          <X size={20} />
+        </Link>
+        <Link to="/" className="auth-brand" aria-label="Sri Annai Boutique home">
+          <span className="auth-brand-main">SRI ANNAI</span>
+          <span className="auth-brand-sub">Boutique</span>
+        </Link>
 
-      <div className="container login-container">
-        <div className="login-card card">
-          <div className="login-header">
-            <span className="section-subtitle">Client Portal</span>
-            <h1 className="login-title">Sign in</h1>
-            <p className="login-subtitle">
-              Sign in to use wishlist, cart, and your orders.
-            </p>
-          </div>
-
-          {errorMessage && (
-            <div className="login-error-banner">
-              <AlertCircle size={16} />
-              <span>{errorMessage}</span>
-            </div>
-          )}
-
-          {/* Google Sign-in Area */}
-          {GOOGLE_CLIENT_ID && (
-            <div className="google-auth-wrap">
-              <div ref={googleBtnRef} className="google-btn-slot"></div>
-              <div className="auth-separator">
-                <span>or sign in with email</span>
-              </div>
-            </div>
-          )}
-
-          <form onSubmit={handleSubmit} className="login-form" noValidate>
-            {/* Email */}
-            <div className="form-group">
-              <label htmlFor="email" className="form-label">
-                Email Address
-              </label>
-              <div className="input-with-icon">
-                <Mail size={16} className="input-icon" />
-                <input
-                  id="email"
-                  type="email"
-                  className="form-input"
-                  placeholder="e.g. client@example.com"
-                  value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  required
-                />
-              </div>
-            </div>
-
-            {/* Password */}
-            <div className="form-group">
-              <div className="form-label-row">
-                <label htmlFor="password" className="form-label">
-                  Password
-                </label>
-              </div>
-              <div className="input-with-icon">
-                <Lock size={16} className="input-icon" />
-                <input
-                  id="password"
-                  type="password"
-                  className="form-input"
-                  placeholder="••••••••"
-                  value={formData.password}
-                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                  required
-                />
-              </div>
-            </div>
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="btn btn-primary btn-lg w-full login-submit-btn"
-            >
-              {loading ? 'Authenticating...' : 'Sign In'} <ArrowRight size={16} />
-            </button>
-          </form>
-
-          <div className="login-footer">
-            <p>
-              New to Maison Boutique?{' '}
-              <Link to={`/register?redirect=${encodeURIComponent(redirectPath)}`} className="auth-link">
-                Create Private Client Account
-              </Link>
-            </p>
-          </div>
+        <div className="auth-header">
+          <h1 className="auth-title">Welcome back</h1>
+          <p className="auth-subtitle">Sign in to your account</p>
         </div>
+
+        {errorMessage && (
+          <div className="auth-error">
+            <AlertCircle size={16} />
+            <span>{errorMessage}</span>
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} className="auth-form" noValidate>
+          <div className="form-group">
+            <label htmlFor="email" className="form-label">Email</label>
+            <div className="input-with-icon">
+              <Mail size={16} className="input-icon" />
+              <input
+                id="email"
+                type="email"
+                className="form-input"
+                placeholder="you@example.com"
+                value={formData.email}
+                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                autoComplete="email"
+                required
+              />
+            </div>
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="password" className="form-label">Password</label>
+            <div className="input-with-icon">
+              <Lock size={16} className="input-icon" />
+              <input
+                id="password"
+                type={showPassword ? 'text' : 'password'}
+                className="form-input auth-input-with-toggle"
+                placeholder="••••••••"
+                value={formData.password}
+                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                autoComplete="current-password"
+                required
+              />
+              <button
+                type="button"
+                className="auth-password-toggle"
+                onClick={() => setShowPassword((v) => !v)}
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
+              >
+                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+              </button>
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="btn btn-primary btn-lg w-full auth-submit"
+          >
+            {loading ? 'Signing in...' : 'Sign in'} <ArrowRight size={16} />
+          </button>
+        </form>
+
+        {GOOGLE_CLIENT_ID && (
+          <div className="google-auth-wrap">
+            <div className="auth-separator">
+              <span>or</span>
+            </div>
+            <div ref={googleBtnRef} className="google-btn-slot"></div>
+          </div>
+        )}
+
+        <p className="auth-switch">
+          Don&apos;t have an account?{' '}
+          <Link to={`/register?redirect=${encodeURIComponent(redirectPath)}`} className="auth-link">
+            Register
+          </Link>
+        </p>
       </div>
     </div>
   );

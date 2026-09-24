@@ -42,9 +42,11 @@ export default function CategoriesPage() {
           />
         ) : (
           <div className="categories-grid-page">
-            {categories.map((cat) => (
+            {categories.slice(0, 10).map((cat) => (
               <Link key={cat.id} to={`/shop?category=${encodeURIComponent(cat.id)}`} className="category-page-tile">
-                <CategoryCover category={cat} alt={cat.name} />
+                <div className="category-page-media">
+                  <CategoryCover category={cat} alt={cat.name} />
+                </div>
                 <div className="category-page-content">
                   <span className="cat-count">{cat.count} product{cat.count === 1 ? '' : 's'}</span>
                   <h3>{cat.name}</h3>

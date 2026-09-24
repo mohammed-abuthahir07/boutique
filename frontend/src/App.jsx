@@ -67,6 +67,8 @@ export default function App() {
                     {/* ADMIN PUBLIC ROUTES                                          */}
                     {/* ============================================================ */}
                     <Route path="/admin/login" element={<AdminLoginPage />} />
+                    <Route path="/login" element={<LoginPage />} />
+                    <Route path="/register" element={<RegisterPage />} />
 
                     {/* ============================================================ */}
                     {/* ADMIN PROTECTED ROUTES (AdminLayout & Sub-pages)             */}
@@ -106,8 +108,6 @@ export default function App() {
                       <Route path="/about" element={<AboutPage />} />
                       <Route path="/gallery" element={<GalleryPage />} />
                       <Route path="/contact" element={<ContactPage />} />
-                      <Route path="/login" element={<LoginPage />} />
-                      <Route path="/register" element={<RegisterPage />} />
 
                       {/* Customer Authenticated / Protected Pages */}
                       <Route

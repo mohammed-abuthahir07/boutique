@@ -143,6 +143,19 @@
 
 @media (max-width: 480px) {
   .wishlist-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .wishlist-card-info {
+    padding: 10px 10px 12px;
+  }
+
+  .wishlist-item-title {
+    font-size: 0.86rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
   }
 }

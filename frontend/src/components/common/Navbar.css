@@ -363,15 +363,23 @@
     display: none;
   }
 
+  .announcement-bar {
+    padding: 5px 0;
+  }
+
   .navbar-container {
-    grid-template-columns: 44px 1fr auto;
+    grid-template-columns: 40px 1fr auto;
     grid-template-areas:
       'menu logo actions'
       'search search search';
     min-height: 0;
-    gap: 8px 10px;
-    padding-top: 8px;
-    padding-bottom: 10px;
+    gap: 6px 8px;
+    padding-top: 6px;
+    padding-bottom: 8px;
+  }
+
+  .logo-main {
+    font-size: 1.15rem;
   }
 
   .brand-logo {

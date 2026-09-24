@@ -182,6 +182,37 @@
     transform: none;
   }
 
+  .product-card {
+    min-width: 0;
+  }
+
+  .product-image-wrap {
+    aspect-ratio: 3 / 4;
+  }
+
+  .product-image {
+    object-fit: contain;
+    object-position: center;
+  }
+
+  .product-category-tag {
+    top: 8px;
+    left: 8px;
+    font-size: 0.58rem;
+    padding: 3px 7px;
+    max-width: calc(100% - 48px);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .product-wishlist-btn {
+    top: 8px;
+    right: 8px;
+    width: 32px;
+    height: 32px;
+  }
+
   .product-info {
     padding: 10px 10px 12px;
   }

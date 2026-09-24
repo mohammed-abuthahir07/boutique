@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useSearchParams } from 'react-router-dom';
 import { SlidersHorizontal, X } from 'lucide-react';
 import ProductGrid, { ProductGridSkeleton } from '../../components/customer/ProductGrid';
@@ -38,6 +39,9 @@ export default function ShopPage() {
   const [priceFilter, setPriceFilter] = useState('');
   const [sortBy, setSortBy] = useState('featured');
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
+  const [isMobileShop, setIsMobileShop] = useState(
+    () => typeof window !== 'undefined' && window.matchMedia('(max-width: 992px)').matches
+  );
   const [page, setPage] = useState(Math.max(1, Number(searchParams.get('page')) || 1));
   const debouncedSearch = useDebouncedValue(searchTerm, 300);
 
@@ -97,6 +101,31 @@ export default function ShopPage() {
     return () => window.removeEventListener('resize', syncHeader);
   }, []);
 
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 992px)');
+    const onChange = () => {
+      setIsMobileShop(mq.matches);
+      if (!mq.matches) setMobileFilterOpen(false);
+    };
+    onChange();
+    mq.addEventListener('change', onChange);
+    return () => mq.removeEventListener('change', onChange);
+  }, []);
+
+  useEffect(() => {
+    if (!mobileFilterOpen || !isMobileShop) return undefined;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    const onKeyDown = (event) => {
+      if (event.key === 'Escape') setMobileFilterOpen(false);
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => {
+      document.body.style.overflow = previousOverflow && previousOverflow !== 'hidden' ? previousOverflow : '';
+      window.removeEventListener('keydown', onKeyDown);
+    };
+  }, [mobileFilterOpen, isMobileShop]);
+
   const totalPages = Math.max(1, Math.ceil(filteredProducts.length / PAGE_SIZE));
   const currentPage = Math.min(page, totalPages);
   const pagedProducts = filteredProducts.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
@@ -136,12 +165,117 @@ export default function ShopPage() {
   };
 
   const hasFilters = Boolean(selectedCategory || searchTerm || priceFilter || selectedColor || selectedSize);
+  const closeMobileFilters = () => setMobileFilterOpen(false);
 
   const handleSizeSelect = (size) => {
     const next = selectedSize.toLowerCase() === String(size).toLowerCase() ? '' : size;
     setSelectedSize(next);
     updateParam('size', next);
   };
+
+  const filterPanel = (
+    <aside className={`shop-sidebar ${mobileFilterOpen ? 'mobile-open' : ''}`} aria-label="Product filters">
+      <div className="sidebar-header">
+        <h3 className="sidebar-title">Filters</h3>
+        <button type="button" className="sidebar-close-btn" onClick={closeMobileFilters} aria-label="Close filters">
+          <X size={20} />
+        </button>
+      </div>
+
+      <div className="shop-filter-body">
+        <section className="filter-group">
+          <h4 className="sidebar-title">Category</h4>
+          <label className="filter-check">
+            <input type="radio" name="category" checked={!selectedCategory} onChange={() => handleCategorySelect('')} />
+            <span>All products</span>
+            <em>{products.length}</em>
+          </label>
+          {categories.map((cat) => (
+            <label key={cat.id} className="filter-check">
+              <input
+                type="radio"
+                name="category"
+                checked={String(selectedCategory) === String(cat.id)}
+                onChange={() => handleCategorySelect(cat.id)}
+              />
+              <span>{cat.name}</span>
+              <em>{cat.count}</em>
+            </label>
+          ))}
+        </section>
+
+        {colors.length > 0 && (
+          <section className="filter-group">
+            <h4 className="sidebar-title">Color</h4>
+            <div className="color-swatch-list">
+              {colors.map((color) => {
+                const active = selectedColor.toLowerCase() === color.name.toLowerCase();
+                return (
+                  <button
+                    key={color.name}
+                    type="button"
+                    className={`color-swatch ${active ? 'active' : ''}`}
+                    onClick={() => handleColorSelect(color.name)}
+                    title={color.name}
+                  >
+                    <span className="color-dot" style={{ backgroundColor: colorToHex(color.name) }} />
+                    <span>{color.name}</span>
+                    <em>{color.count}</em>
+                  </button>
+                );
+              })}
+            </div>
+          </section>
+        )}
+
+        {sizes.length > 0 && (
+          <section className="filter-group">
+            <h4 className="sidebar-title">Size</h4>
+            <div className="size-chip-list">
+              {sizes.map((size) => {
+                const active = selectedSize.toLowerCase() === String(size.name).toLowerCase();
+                return (
+                  <button
+                    key={size.name}
+                    type="button"
+                    className={`size-chip ${active ? 'active' : ''}`}
+                    onClick={() => handleSizeSelect(size.name)}
+                  >
+                    {size.name}
+                    <em>{size.count}</em>
+                  </button>
+                );
+              })}
+            </div>
+          </section>
+        )}
+
+        <section className="filter-group">
+          <h4 className="sidebar-title">Price</h4>
+          {PRICE_FILTERS.map((opt) => (
+            <label key={opt.id || 'any'} className="filter-check">
+              <input
+                type="radio"
+                name="price"
+                checked={priceFilter === opt.id}
+                onChange={() => setPriceFilter(opt.id)}
+              />
+              <span>{opt.label}</span>
+            </label>
+          ))}
+        </section>
+      </div>
+
+      <div className="shop-filter-footer">
+        <button type="button" className="clear-all-link shop-filter-clear" onClick={clearAllFilters} disabled={!hasFilters}>
+          Clear all
+        </button>
+        <button type="button" className="btn btn-primary apply-filters-btn" onClick={closeMobileFilters}>
+          Show {filteredProducts.length} products
+        </button>
+      </div>
+    </aside>
+  );
 
   return (
     <div className="shop-page page-enter">
@@ -150,24 +284,10 @@ export default function ShopPage() {
       <div className="shop-header">
         <div className="container">
           <h1 className="shop-title">Shop</h1>
-          <p className="shop-subtitle">Filter by category, color, or price — just like a real store.</p>
         </div>
       </div>
 
-      <div className="mobile-shop-bar">
-        <button type="button" onClick={() => setMobileFilterOpen(true)}>
-          <SlidersHorizontal size={16} /> Filter
-        </button>
-        <span className="mobile-result-count">{filteredProducts.length} results</span>
-        <select value={sortBy} onChange={(e) => setSortBy(e.target.value)} aria-label="Sort">
-          <option value="featured">Newest</option>
-          <option value="price-low">Price: Low to High</option>
-          <option value="price-high">Price: High to Low</option>
-          <option value="name-asc">Name: A to Z</option>
-        </select>
-      </div>
-
-      <div className="container shop-main-container">
+      <div className="container shop-toolbar-wrap">
         <div className="shop-toolbar">
           <p className="product-count-text">
             <strong>{filteredProducts.length}</strong> results
@@ -188,154 +308,76 @@ export default function ShopPage() {
             <option value="name-asc">Name: A to Z</option>
           </select>
         </div>
+      </div>
 
+      <div className="shop-controls">
         {hasFilters && (
-          <div className="active-filters-bar">
-            {selectedCategory && (
-              <span className="active-filter-chip">
-                {categories.find((c) => String(c.id) === String(selectedCategory))?.name || selectedCategory}
-                <button type="button" onClick={() => handleCategorySelect('')} aria-label="Remove category">
-                  <X size={12} />
-                </button>
-              </span>
-            )}
-            {selectedColor && (
-              <span className="active-filter-chip">
-                {selectedColor}
-                <button type="button" onClick={() => handleColorSelect(selectedColor)} aria-label="Remove color">
-                  <X size={12} />
-                </button>
-              </span>
-            )}
-            {selectedSize && (
-              <span className="active-filter-chip">
-                Size {selectedSize}
-                <button type="button" onClick={() => handleSizeSelect(selectedSize)} aria-label="Remove size">
-                  <X size={12} />
-                </button>
-              </span>
-            )}
-            {searchTerm && (
-              <span className="active-filter-chip">
-                “{searchTerm}”
-                <button type="button" onClick={() => setSearchTerm('')} aria-label="Remove search">
-                  <X size={12} />
-                </button>
-              </span>
-            )}
-            {priceFilter && (
-              <span className="active-filter-chip">
-                {PRICE_FILTERS.find((p) => p.id === priceFilter)?.label}
-                <button type="button" onClick={() => setPriceFilter('')} aria-label="Remove price">
-                  <X size={12} />
-                </button>
-              </span>
-            )}
-            <button type="button" className="clear-all-link" onClick={clearAllFilters}>
-              Clear all
-            </button>
+          <div className="container">
+            <div className="active-filters-bar">
+              {selectedCategory && (
+                <span className="active-filter-chip">
+                  {categories.find((c) => String(c.id) === String(selectedCategory))?.name || selectedCategory}
+                  <button type="button" onClick={() => handleCategorySelect('')} aria-label="Remove category">
+                    <X size={12} />
+                  </button>
+                </span>
+              )}
+              {selectedColor && (
+                <span className="active-filter-chip">
+                  {selectedColor}
+                  <button type="button" onClick={() => handleColorSelect(selectedColor)} aria-label="Remove color">
+                    <X size={12} />
+                  </button>
+                </span>
+              )}
+              {selectedSize && (
+                <span className="active-filter-chip">
+                  Size {selectedSize}
+                  <button type="button" onClick={() => handleSizeSelect(selectedSize)} aria-label="Remove size">
+                    <X size={12} />
+                  </button>
+                </span>
+              )}
+              {searchTerm && (
+                <span className="active-filter-chip">
+                  “{searchTerm}”
+                  <button type="button" onClick={() => setSearchTerm('')} aria-label="Remove search">
+                    <X size={12} />
+                  </button>
+                </span>
+              )}
+              {priceFilter && (
+                <span className="active-filter-chip">
+                  {PRICE_FILTERS.find((p) => p.id === priceFilter)?.label}
+                  <button type="button" onClick={() => setPriceFilter('')} aria-label="Remove price">
+                    <X size={12} />
+                  </button>
+                </span>
+              )}
+              <button type="button" className="clear-all-link" onClick={clearAllFilters}>
+                Clear all
+              </button>
+            </div>
           </div>
         )}
 
-        {mobileFilterOpen && (
-          <button type="button" className="filter-backdrop" aria-label="Close filters" onClick={() => setMobileFilterOpen(false)} />
-        )}
+        <div className="mobile-shop-bar">
+          <button type="button" onClick={() => setMobileFilterOpen(true)}>
+            <SlidersHorizontal size={16} /> Filter
+          </button>
+          <span className="mobile-result-count">{filteredProducts.length} results</span>
+          <select value={sortBy} onChange={(e) => setSortBy(e.target.value)} aria-label="Sort">
+            <option value="featured">Newest</option>
+            <option value="price-low">Price: Low to High</option>
+            <option value="price-high">Price: High to Low</option>
+            <option value="name-asc">Name: A to Z</option>
+          </select>
+        </div>
+      </div>
 
+      <div className="container shop-main-container">
         <div className="shop-layout">
-          <aside className={`shop-sidebar ${mobileFilterOpen ? 'mobile-open' : ''}`}>
-            <div className="sidebar-header">
-              <h3 className="sidebar-title">Filters</h3>
-              <button type="button" className="sidebar-close-btn" onClick={() => setMobileFilterOpen(false)} aria-label="Close filters">
-                <X size={20} />
-              </button>
-            </div>
-
-            <section className="filter-group">
-              <h4 className="sidebar-title">Category</h4>
-              <label className="filter-check">
-                <input type="radio" name="category" checked={!selectedCategory} onChange={() => handleCategorySelect('')} />
-                <span>All products</span>
-                <em>{products.length}</em>
-              </label>
-              {categories.map((cat) => (
-                <label key={cat.id} className="filter-check">
-                  <input
-                    type="radio"
-                    name="category"
-                    checked={String(selectedCategory) === String(cat.id)}
-                    onChange={() => handleCategorySelect(cat.id)}
-                  />
-                  <span>{cat.name}</span>
-                  <em>{cat.count}</em>
-                </label>
-              ))}
-            </section>
-
-            {colors.length > 0 && (
-              <section className="filter-group">
-                <h4 className="sidebar-title">Color</h4>
-                <div className="color-swatch-list">
-                  {colors.map((color) => {
-                    const active = selectedColor.toLowerCase() === color.name.toLowerCase();
-                    return (
-                      <button
-                        key={color.name}
-                        type="button"
-                        className={`color-swatch ${active ? 'active' : ''}`}
-                        onClick={() => handleColorSelect(color.name)}
-                        title={color.name}
-                      >
-                        <span className="color-dot" style={{ backgroundColor: colorToHex(color.name) }} />
-                        <span>{color.name}</span>
-                        <em>{color.count}</em>
-                      </button>
-                    );
-                  })}
-                </div>
-              </section>
-            )}
-
-            {sizes.length > 0 && (
-              <section className="filter-group">
-                <h4 className="sidebar-title">Size</h4>
-                <div className="size-chip-list">
-                  {sizes.map((size) => {
-                    const active = selectedSize.toLowerCase() === String(size.name).toLowerCase();
-                    return (
-                      <button
-                        key={size.name}
-                        type="button"
-                        className={`size-chip ${active ? 'active' : ''}`}
-                        onClick={() => handleSizeSelect(size.name)}
-                      >
-                        {size.name}
-                        <em>{size.count}</em>
-                      </button>
-                    );
-                  })}
-                </div>
-              </section>
-            )}
-
-            <section className="filter-group">
-              <h4 className="sidebar-title">Price</h4>
-              {PRICE_FILTERS.map((opt) => (
-                <label key={opt.id || 'any'} className="filter-check">
-                  <input
-                    type="radio"
-                    name="price"
-                    checked={priceFilter === opt.id}
-                    onChange={() => setPriceFilter(opt.id)}
-                  />
-                  <span>{opt.label}</span>
-                </label>
-              ))}
-            </section>
-
-            <button type="button" className="btn btn-primary apply-filters-btn" onClick={() => setMobileFilterOpen(false)}>
-              Show {filteredProducts.length} products
-            </button>
-          </aside>
+          {!isMobileShop && filterPanel}
 
           <div className="shop-products-main">
             {loading ? (
@@ -384,6 +426,13 @@ export default function ShopPage() {
         </div>
       </div>
 
+      {isMobileShop && mobileFilterOpen && typeof document !== 'undefined' && createPortal(
+        <div className="shop-filter-layer" role="dialog" aria-modal="true" aria-label="Filters">
+          <button type="button" className="filter-backdrop" aria-label="Close filters" onClick={closeMobileFilters} />
+          {filterPanel}
+        </div>,
+        document.body
+      )}
     </div>
   );
 }

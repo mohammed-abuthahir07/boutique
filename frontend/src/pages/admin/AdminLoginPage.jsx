@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Shield, Lock, Mail, ArrowRight, AlertCircle } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Shield, Lock, Mail, ArrowRight, AlertCircle, X } from 'lucide-react';
 import { useAdminAuth } from '../../context/AdminAuthContext';
 import { useToast } from '../../context/ToastContext';
 import './AdminLoginPage.css';
@@ -49,6 +49,9 @@ export default function AdminLoginPage() {
   return (
     <div className="admin-login-page">
       <div className="admin-login-card card">
+        <Link to="/" className="admin-login-close" aria-label="Back to home page">
+          <X size={20} />
+        </Link>
         <div className="admin-login-header">
           <div className="admin-login-icon">
             <Shield size={32} />
