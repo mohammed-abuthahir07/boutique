@@ -373,7 +373,6 @@
 }
 
 .dossier-stat-val {
-  font-family: var(--font-serif);
   font-size: 1.35rem;
   font-weight: 700;
   color: var(--color-primary);
