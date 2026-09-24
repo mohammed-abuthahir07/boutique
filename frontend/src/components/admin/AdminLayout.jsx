@@ -150,9 +150,11 @@ export default function AdminLayout() {
               type="button"
               className="admin-menu-toggle"
               onClick={() => setSidebarOpen(!sidebarOpen)}
+              aria-label="Open admin menu"
             >
               <Menu size={22} />
             </button>
+            <span className="admin-header-title">Admin</span>
             <div className="admin-breadcrumb-info">
               <span className="portal-badge">
                 <Shield size={12} /> Administrator

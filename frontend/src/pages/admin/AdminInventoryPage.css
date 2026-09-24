@@ -94,6 +94,7 @@
 .inventory-prod-link {
   font-weight: 600;
   color: var(--color-primary);
+  word-break: break-word;
 }
 
 .inventory-prod-link:hover {
@@ -111,6 +112,25 @@
 }
 
 @media (max-width: 600px) {
+  .inventory-stats-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .inv-stat-card {
+    padding: 14px;
+    gap: 10px;
+  }
+
+  .inv-stat-val {
+    font-size: 1.2rem;
+  }
+
+  .stock-filters-row {
+    width: 100%;
+  }
+}
+
+@media (max-width: 380px) {
   .inventory-stats-grid {
     grid-template-columns: 1fr;
   }

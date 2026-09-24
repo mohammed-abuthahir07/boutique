@@ -2,6 +2,8 @@
   display: flex;
   flex-direction: column;
   gap: 32px;
+  min-width: 0;
+  max-width: 100%;
 }
 
 .dashboard-page-header {
@@ -9,7 +11,15 @@
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
-  gap: 16px;
+  gap: 12px;
+}
+
+.dashboard-page-header .header-actions {
+  flex-shrink: 0;
+}
+
+.dashboard-page-header .btn {
+  width: auto;
 }
 
 .admin-view-title {
@@ -243,6 +253,11 @@
 }
 
 /* Tables Grid */
+.dashboard-charts-grid,
+.dashboard-tables-grid {
+  min-width: 0;
+}
+
 .dashboard-tables-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -251,10 +266,14 @@
 
 .dash-table-card {
   padding: 24px;
+  min-width: 0;
+  max-width: 100%;
 }
 
 .admin-table-wrap {
   overflow-x: auto;
+  min-width: 0;
+  max-width: 100%;
 }
 
 .admin-table {
@@ -288,16 +307,27 @@
   text-decoration: underline;
 }
 
+.admin-layout .admin-dashboard-page .admin-table,
+.admin-dashboard-page .admin-table,
+.admin-dashboard-page .admin-table-wrap .admin-table {
+  table-layout: fixed;
+  width: 100%;
+  min-width: 0;
+}
+
+.dash-prod-name {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+}
+
 @media (max-width: 768px) {
   .admin-table-wrap,
   .admin-table-container {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
-  }
-
-  .admin-table,
-  .admin-table-wrap .admin-table {
-    min-width: 560px;
   }
 }
 
@@ -314,15 +344,23 @@
 
 @media (max-width: 600px) {
   .stats-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr 1fr;
   }
 
   .admin-dashboard-page {
     gap: 16px;
   }
 
+  .dashboard-page-header {
+    align-items: flex-start;
+  }
+
+  .dashboard-page-header .btn {
+    width: auto;
+  }
+
   .admin-view-title {
-    font-size: 1.25rem;
+    font-size: 1.2rem;
   }
 
   .stat-card,
@@ -331,9 +369,13 @@
     padding: 14px;
   }
 
+  .stat-label {
+    font-size: 0.66rem;
+  }
+
   .stat-val {
     font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif;
-    font-size: 1.3rem;
+    font-size: 1.15rem;
   }
 
   .yearly-revenue-summary {
@@ -341,11 +383,18 @@
   }
 
   .month-rev-item {
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
+    gap: 8px;
+  }
+
+  .month-tag {
+    width: 58px;
+    flex-shrink: 0;
   }
 
   .month-amount {
     width: auto;
-    text-align: left;
+    min-width: 72px;
+    text-align: right;
   }
 }

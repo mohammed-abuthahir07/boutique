@@ -1,13 +1,18 @@
 const db = require("../../config/database");
 
 const CategoryModel = {
-    // Get all categories
+
+    // ==========================================
+    // GET ALL CATEGORIES
+    // ==========================================
+
     async findAll() {
         const [rows] = await db.query(`
             SELECT
                 id,
                 name,
                 slug,
+                image,
                 status,
                 created_at,
                 updated_at
@@ -18,7 +23,11 @@ const CategoryModel = {
         return rows;
     },
 
-    // Get category by ID
+
+    // ==========================================
+    // GET CATEGORY BY ID
+    // ==========================================
+
     async findById(id) {
         const [rows] = await db.query(
             `
@@ -26,6 +35,7 @@ const CategoryModel = {
                 id,
                 name,
                 slug,
+                image,
                 status,
                 created_at,
                 updated_at
@@ -39,7 +49,11 @@ const CategoryModel = {
         return rows[0] || null;
     },
 
-    // Find category by name
+
+    // ==========================================
+    // FIND CATEGORY BY NAME
+    // ==========================================
+
     async findByName(name) {
         const [rows] = await db.query(
             `
@@ -47,6 +61,7 @@ const CategoryModel = {
                 id,
                 name,
                 slug,
+                image,
                 status
             FROM categories
             WHERE name = ?
@@ -58,7 +73,11 @@ const CategoryModel = {
         return rows[0] || null;
     },
 
-    // Find category by slug
+
+    // ==========================================
+    // FIND CATEGORY BY SLUG
+    // ==========================================
+
     async findBySlug(slug) {
         const [rows] = await db.query(
             `
@@ -66,6 +85,7 @@ const CategoryModel = {
                 id,
                 name,
                 slug,
+                image,
                 status
             FROM categories
             WHERE slug = ?
@@ -77,37 +97,78 @@ const CategoryModel = {
         return rows[0] || null;
     },
 
-    // Create category
-    async create({ name, slug }) {
+
+    // ==========================================
+    // CREATE CATEGORY
+    // ==========================================
+
+    async create({ name, slug, image }) {
         const [result] = await db.query(
             `
             INSERT INTO categories
-                (name, slug, status)
+            (
+                name,
+                slug,
+                image,
+                status
+            )
             VALUES
-                (?, ?, 'ACTIVE')
+            (
+                ?,
+                ?,
+                ?,
+                'ACTIVE'
+            )
             `,
-            [name, slug]
+            [
+                name,
+                slug,
+                image
+            ]
         );
 
         return result.insertId;
     },
 
-    // Update category
-    async update(id, { name, slug, status }) {
+
+    // ==========================================
+    // UPDATE CATEGORY
+    // ==========================================
+
+    async update(
+        id,
+        {
+            name,
+            slug,
+            image,
+            status
+        }
+    ) {
         await db.query(
             `
             UPDATE categories
             SET
                 name = ?,
                 slug = ?,
+                image = ?,
                 status = ?
             WHERE id = ?
             `,
-            [name, slug, status, id]
+            [
+                name,
+                slug,
+                image,
+                status,
+                id
+            ]
         );
     },
 
-    // Delete category
+
+    // ==========================================
+    // DELETE CATEGORY
+    // ==========================================
+
     async delete(id) {
         const [result] = await db.query(
             `
@@ -119,6 +180,7 @@ const CategoryModel = {
 
         return result.affectedRows;
     }
+
 };
 
 module.exports = CategoryModel;

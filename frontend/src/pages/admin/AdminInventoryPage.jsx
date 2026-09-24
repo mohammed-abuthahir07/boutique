@@ -181,20 +181,20 @@ export default function AdminInventoryPage() {
 
                   return (
                     <tr key={item.id}>
-                      <td>
+                      <td data-label="Product">
                         <Link to={`/admin/products/${item.id}`} className="inventory-prod-link">
                           {item.product_name}
                         </Link>
                         <span className="font-mono text-muted d-block font-xs">#{item.id}</span>
                       </td>
-                      <td>
+                      <td data-label="Category">
                         <span className="category-pill">{item.category_name}</span>
                       </td>
-                      <td className="font-semibold">{formatPrice(item.price)}</td>
-                      <td>
+                      <td data-label="Price" className="font-semibold">{formatPrice(item.price)}</td>
+                      <td data-label="Stock">
                         <strong className="font-serif font-base">{stock} units</strong>
                       </td>
-                      <td>
+                      <td data-label="Inventory">
                         {isDepleted ? (
                           <span className="badge badge-danger">Depleted (0)</span>
                         ) : isLow ? (
@@ -203,12 +203,12 @@ export default function AdminInventoryPage() {
                           <span className="badge badge-success">In Stock</span>
                         )}
                       </td>
-                      <td>
+                      <td data-label="Status">
                         <span className={`badge badge-${item.status === 'ACTIVE' ? 'active' : 'inactive'}`}>
                           {item.status}
                         </span>
                       </td>
-                      <td className="text-right">
+                      <td data-label="Action" className="text-right">
                         <Link
                           to={`/admin/products/${item.id}`}
                           className="btn btn-outline-gold btn-sm"

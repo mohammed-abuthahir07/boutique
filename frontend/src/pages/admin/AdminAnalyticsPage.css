@@ -72,6 +72,12 @@
 
 @media (max-width: 640px) {
   .analytics-kpi-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 380px) {
+  .analytics-kpi-grid {
     grid-template-columns: 1fr;
   }
 }

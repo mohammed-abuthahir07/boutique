@@ -5,6 +5,7 @@ import { ProductGridSkeleton } from '../../components/customer/ProductGrid';
 import Breadcrumbs from '../../components/common/Breadcrumbs';
 import EmptyState from '../../components/common/EmptyState';
 import { useCatalog } from '../../context/CatalogContext';
+import CategoryCover from '../../components/customer/CategoryCover';
 import './CategoriesPage.css';
 
 export default function CategoriesPage() {
@@ -43,6 +44,7 @@ export default function CategoriesPage() {
           <div className="categories-grid-page">
             {categories.map((cat) => (
               <Link key={cat.id} to={`/shop?category=${encodeURIComponent(cat.id)}`} className="category-page-tile">
+                <CategoryCover category={cat} alt={cat.name} />
                 <div className="category-page-content">
                   <span className="cat-count">{cat.count} product{cat.count === 1 ? '' : 's'}</span>
                   <h3>{cat.name}</h3>

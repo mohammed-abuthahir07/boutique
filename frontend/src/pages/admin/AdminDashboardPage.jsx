@@ -19,6 +19,8 @@ import './AdminDashboardPage.css';
 export default function AdminDashboardPage() {
   const [summary, setSummary] = useState(null);
   const [recentOrders, setRecentOrders] = useState([]);
+  const [recentProducts, setRecentProducts] = useState([]);
+  const [recentActivity, setRecentActivity] = useState([]);
   const [lowStockProducts, setLowStockProducts] = useState([]);
   const [monthlyRevenue, setMonthlyRevenue] = useState([]);
   const [yearlyRevenue, setYearlyRevenue] = useState([]);
@@ -91,6 +93,11 @@ export default function AdminDashboardPage() {
     if (isNaN(num)) return '₹0.00';
     return `₹${num.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   };
+
+  const maxMonthlyRevenue = Math.max(
+    ...monthlyRevenue.map((m) => Number(m.revenue) || 0),
+    1
+  );
 
   if (loading) {
     return <Loader message="Aggregating atelier performance metrics..." />;
@@ -195,7 +202,7 @@ export default function AdminDashboardPage() {
                     <div
                       className="month-bar"
                       style={{
-                        width: `${Math.min(100, Math.max(15, (Number(m.revenue) / 50000) * 100))}%`,
+                        width: `${Math.min(100, Math.max(8, (Number(m.revenue) / maxMonthlyRevenue) * 100))}%`,
                       }}
                     ></div>
                   </div>
@@ -316,7 +323,7 @@ export default function AdminDashboardPage() {
                   {lowStockProducts.slice(0, 6).map((item) => (
                     <tr key={item.id}>
                       <td>
-                        <Link to={`/admin/products/${item.id}`} className="admin-table-link">
+                        <Link to={`/admin/products/${item.id}`} className="admin-table-link dash-prod-name" title={item.name}>
                           {item.name}
                         </Link>
                       </td>
@@ -324,6 +331,102 @@ export default function AdminDashboardPage() {
                       <td>{formatPrice(item.price)}</td>
                       <td className="text-right">
                         <span className="badge badge-danger">{item.stock} left</span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div className="dashboard-tables-grid">
+        <div className="card dash-table-card">
+          <div className="panel-header">
+            <h3 className="panel-title">Recent products</h3>
+            <Link to="/admin/products" className="panel-link">
+              All products <ArrowRight size={14} />
+            </Link>
+          </div>
+          <div className="gold-divider"></div>
+          {recentProducts.length === 0 ? (
+            <p className="no-data-msg">No products have been added yet.</p>
+          ) : (
+            <div className="admin-table-wrap">
+              <table className="admin-table">
+                <thead>
+                  <tr>
+                    <th>Product</th>
+                    <th>Category</th>
+                    <th>Price</th>
+                    <th>Stock</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {recentProducts.slice(0, 6).map((item) => (
+                    <tr key={item.id}>
+                      <td>
+                        <Link to={`/admin/products/${item.id}`} className="admin-table-link dash-prod-name" title={item.name}>
+                          {item.name}
+                        </Link>
+                      </td>
+                      <td>{item.category_name}</td>
+                      <td>{formatPrice(item.price)}</td>
+                      <td>{item.stock}</td>
+                      <td>
+                        <span className={`badge badge-${item.status === 'ACTIVE' ? 'active' : 'inactive'}`}>
+                          {item.status}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+
+        <div className="card dash-table-card">
+          <div className="panel-header">
+            <h3 className="panel-title">Recent activity</h3>
+            <Link to="/admin/orders" className="panel-link">
+              All orders <ArrowRight size={14} />
+            </Link>
+          </div>
+          <div className="gold-divider"></div>
+          {recentActivity.length === 0 ? (
+            <p className="no-data-msg">No recent order activity.</p>
+          ) : (
+            <div className="admin-table-wrap">
+              <table className="admin-table">
+                <thead>
+                  <tr>
+                    <th>Order</th>
+                    <th>Customer</th>
+                    <th>Total</th>
+                    <th>Status</th>
+                    <th>Date</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {recentActivity.slice(0, 6).map((item) => (
+                    <tr key={item.id}>
+                      <td>
+                        <Link to={`/admin/orders/${item.id}`} className="admin-table-link">
+                          {item.order_id}
+                        </Link>
+                      </td>
+                      <td>{item.customer_name}</td>
+                      <td>{formatPrice(item.total_amount)}</td>
+                      <td>
+                        <span className={`badge badge-${item.order_status?.toLowerCase()}`}>
+                          {item.order_status}
+                        </span>
+                      </td>
+                      <td className="text-muted">
+                        {item.created_at ? new Date(item.created_at).toLocaleDateString('en-IN') : '—'}
                       </td>
                     </tr>
                   ))}

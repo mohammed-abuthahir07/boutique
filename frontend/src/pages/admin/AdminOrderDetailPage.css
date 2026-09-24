@@ -189,4 +189,12 @@
   .order-manifest-grid {
     grid-template-columns: 1fr;
   }
+
+  .order-summary-header {
+    padding: 16px;
+  }
+
+  .admin-order-title {
+    font-size: 1.3rem;
+  }
 }

@@ -1,10 +1,31 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Plus, Edit2, Trash2, Search, AlertCircle } from 'lucide-react';
 import adminService from '../../services/adminService';
 import { useToast } from '../../context/ToastContext';
 import Modal from '../../components/common/Modal';
 import Loader from '../../components/common/Loader';
+import { getCategoryImageUrl } from '../../utils/categoryImage';
 import './AdminCategoriesPage.css';
+
+const EMPTY_FORM = { name: '', status: 'ACTIVE' };
+
+function CategoryThumb({ category }) {
+  const src = getCategoryImageUrl(category);
+  const [failed, setFailed] = useState(false);
+
+  if (!src || failed) {
+    return <span className="admin-category-thumb-fallback">No image</span>;
+  }
+
+  return (
+    <img
+      src={src}
+      alt=""
+      className="admin-category-thumb"
+      onError={() => setFailed(true)}
+    />
+  );
+}
 
 export default function AdminCategoriesPage() {
   const { success, error } = useToast();
@@ -12,12 +33,28 @@ export default function AdminCategoriesPage() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
 
-  // Modal State
   const [modalOpen, setModalOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState(null);
-  const [formData, setFormData] = useState({ name: '', status: 'ACTIVE' });
+  const [formData, setFormData] = useState(EMPTY_FORM);
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
+  const [nameError, setNameError] = useState('');
+
+  const clearImagePreview = (preview) => {
+    if (preview && preview.startsWith('blob:')) {
+      URL.revokeObjectURL(preview);
+    }
+  };
+
+  const resetImageState = () => {
+    setImageFile(null);
+    setImagePreview((prev) => {
+      clearImagePreview(prev);
+      return null;
+    });
+  };
 
   const loadCategories = async () => {
     try {
@@ -37,46 +74,76 @@ export default function AdminCategoriesPage() {
     loadCategories();
   }, []);
 
+  useEffect(() => {
+    return () => clearImagePreview(imagePreview);
+  }, [imagePreview]);
+
+  const closeModal = useCallback(() => {
+    setModalOpen(false);
+    setEditingCategory(null);
+    setFormData(EMPTY_FORM);
+    resetImageState();
+  }, []);
+
   const openCreateModal = () => {
     setEditingCategory(null);
-    setFormData({ name: '', status: 'ACTIVE' });
+    setFormData(EMPTY_FORM);
+    resetImageState();
     setModalOpen(true);
   };
 
   const openEditModal = (cat) => {
     setEditingCategory(cat);
     setFormData({ name: cat.name, status: cat.status });
+    setImageFile(null);
+    setImagePreview((prev) => {
+      clearImagePreview(prev);
+      return getCategoryImageUrl(cat);
+    });
     setModalOpen(true);
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setImageFile(file);
+    setImagePreview((prev) => {
+      clearImagePreview(prev);
+      return URL.createObjectURL(file);
+    });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.name.trim()) {
-      error('Category name is required');
+      setNameError('Category name is required');
       return;
+    }
+    setNameError('');
+
+    const payload = new FormData();
+    payload.append('name', formData.name.trim());
+    if (editingCategory) {
+      payload.append('status', formData.status);
+    }
+    if (imageFile) {
+      payload.append('image', imageFile);
     }
 
     setSubmitting(true);
     try {
       if (editingCategory) {
-        // Update
-        const res = await adminService.updateCategory(editingCategory.id, {
-          name: formData.name.trim(),
-          status: formData.status,
-        });
+        const res = await adminService.updateCategory(editingCategory.id, payload);
         if (res.success) {
           success(res.message || 'Category updated');
-          setModalOpen(false);
+          closeModal();
           loadCategories();
         }
       } else {
-        // Create
-        const res = await adminService.createCategory({
-          name: formData.name.trim(),
-        });
+        const res = await adminService.createCategory(payload);
         if (res.success) {
           success(res.message || 'Category created');
-          setModalOpen(false);
+          closeModal();
           loadCategories();
         }
       }
@@ -118,7 +185,6 @@ export default function AdminCategoriesPage() {
       </div>
 
       <div className="card table-container-card">
-        {/* Search Bar */}
         <div className="table-filter-bar">
           <div className="admin-search-input-wrap">
             <Search size={16} className="search-icon" />
@@ -144,7 +210,7 @@ export default function AdminCategoriesPage() {
             <table className="admin-data-table">
               <thead>
                 <tr>
-                  {/* <th>ID</th> */}
+                  <th>Image</th>
                   <th>Category Name</th>
                   <th>Slug</th>
                   <th>Status</th>
@@ -154,38 +220,41 @@ export default function AdminCategoriesPage() {
               </thead>
               <tbody>
                 {filtered.map((cat) => (
-                  <tr key={cat.id}>
-                    <td className="font-semibold">{cat.name}</td>
-                    <td className="font-mono text-muted">{cat.slug}</td>
-                    <td>
-                      <span className={`badge badge-${cat.status === 'ACTIVE' ? 'active' : 'inactive'}`}>
-                        {cat.status}
-                      </span>
-                    </td>
-                    <td className="text-muted">
-                      {new Date(cat.created_at).toLocaleDateString('en-IN')}
-                    </td>
-                    <td className="text-right">
-                      <div className="action-buttons-wrap">
-                        <button
-                          type="button"
-                          className="table-action-btn edit"
-                          onClick={() => openEditModal(cat)}
-                          title="Edit Category"
-                        >
-                          <Edit2 size={15} />
-                        </button>
-                        <button
-                          type="button"
-                          className="table-action-btn delete"
-                          onClick={() => setDeleteConfirmId(cat.id)}
-                          title="Delete Category"
-                        >
-                          <Trash2 size={15} />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
+                    <tr key={cat.id}>
+                      <td data-label="Image">
+                        <CategoryThumb category={cat} />
+                      </td>
+                      <td data-label="Name" className="font-semibold">{cat.name}</td>
+                      <td data-label="Slug" className="font-mono text-muted">{cat.slug}</td>
+                      <td data-label="Status">
+                        <span className={`badge badge-${cat.status === 'ACTIVE' ? 'active' : 'inactive'}`}>
+                          {cat.status}
+                        </span>
+                      </td>
+                      <td data-label="Created" className="text-muted">
+                        {new Date(cat.created_at).toLocaleDateString('en-IN')}
+                      </td>
+                      <td data-label="Actions" className="text-right">
+                        <div className="action-buttons-wrap">
+                          <button
+                            type="button"
+                            className="table-action-btn edit"
+                            onClick={() => openEditModal(cat)}
+                            title="Edit Category"
+                          >
+                            <Edit2 size={15} />
+                          </button>
+                          <button
+                            type="button"
+                            className="table-action-btn delete"
+                            onClick={() => setDeleteConfirmId(cat.id)}
+                            title="Delete Category"
+                          >
+                            <Trash2 size={15} />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
                 ))}
               </tbody>
             </table>
@@ -193,10 +262,9 @@ export default function AdminCategoriesPage() {
         )}
       </div>
 
-      {/* Create / Edit Modal */}
       <Modal
         isOpen={modalOpen}
-        onClose={() => setModalOpen(false)}
+        onClose={closeModal}
         title={editingCategory ? `Edit Category: ${editingCategory.name}` : 'Create New Category'}
       >
         <form onSubmit={handleSubmit} className="admin-modal-form">
@@ -208,10 +276,41 @@ export default function AdminCategoriesPage() {
               className="form-input"
               placeholder="e.g. Sarees, Dresses, Kurtis"
               value={formData.name}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              onChange={(e) => {
+                setFormData({ ...formData, name: e.target.value });
+                if (nameError) setNameError('');
+              }}
               required
             />
+            {nameError ? <span className="form-error">{nameError}</span> : null}
             <span className="form-hint">Slug will be automatically regenerated from the name.</span>
+          </div>
+
+          <div className="form-group">
+            <label className="form-label" htmlFor="cat-image">
+              Category Image
+            </label>
+            <input
+              id="cat-image"
+              type="file"
+              className="form-input admin-category-file"
+              accept="image/jpeg,image/jpg,image/png,image/webp"
+              onChange={handleImageChange}
+            />
+            <span className="form-hint">
+              {editingCategory
+                ? 'Optional. Leave empty to keep the current image.'
+                : 'JPG, PNG, or WEBP. Uploaded as multipart/form-data.'}
+            </span>
+            {imagePreview ? (
+              <div className="admin-category-preview">
+                <img src={imagePreview} alt="Category preview" />
+              </div>
+            ) : (
+              <div className="admin-category-preview admin-category-preview-empty">
+                No image selected
+              </div>
+            )}
           </div>
 
           {editingCategory && (
@@ -233,7 +332,7 @@ export default function AdminCategoriesPage() {
             <button
               type="button"
               className="btn btn-outline btn-sm"
-              onClick={() => setModalOpen(false)}
+              onClick={closeModal}
             >
               Cancel
             </button>
@@ -248,7 +347,6 @@ export default function AdminCategoriesPage() {
         </form>
       </Modal>
 
-      {/* Delete Confirmation Modal */}
       <Modal
         isOpen={Boolean(deleteConfirmId)}
         onClose={() => setDeleteConfirmId(null)}

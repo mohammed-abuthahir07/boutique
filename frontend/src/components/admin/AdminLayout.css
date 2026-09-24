@@ -4,6 +4,7 @@
   background-color: #f3f4f6;
   color: #1f2937;
   font-family: var(--font-admin);
+  max-width: 100%;
 }
 
 /* Sidebar — fixed full height, always top-to-bottom */
@@ -162,7 +163,7 @@
   top: 0;
   left: 248px;
   right: 0;
-  z-index: 900;
+  z-index: 1100;
 }
 
 .header-left {
@@ -175,6 +176,13 @@
   display: none;
   color: var(--color-primary);
   padding: 6px;
+}
+
+.admin-header-title {
+  display: none;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #111827;
 }
 
 .portal-badge {
@@ -231,12 +239,21 @@
 .admin-page-content {
   padding: 32px;
   flex: 1;
-  overflow-x: auto;
+  min-width: 0;
+  overflow: visible;
 }
 
-.admin-table-responsive {
+.admin-table-responsive,
+.admin-table-wrap,
+.admin-table-container {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
+  max-width: 100%;
+}
+
+.admin-layout .admin-data-table,
+.admin-layout .admin-table {
+  min-width: 680px;
 }
 
 .admin-data-table {
@@ -291,12 +308,16 @@
     height: 64px;
   }
 
+  .admin-sidebar {
+    z-index: 1200;
+  }
+
   .admin-sidebar-backdrop {
     position: fixed;
     inset: 0;
     background: rgba(0, 0, 0, 0.45);
     border: 0;
-    z-index: 999;
+    z-index: 1150;
   }
 
   .sidebar-close {
@@ -304,7 +325,17 @@
   }
 
   .admin-menu-toggle {
-    display: block;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .admin-header-title {
+    display: inline;
+  }
+
+  .portal-badge {
+    display: none;
   }
 
   .admin-header {
@@ -326,49 +357,13 @@
 }
 
 @media (max-width: 768px) {
-  .admin-data-table thead {
-    display: none;
-  }
-
-  .admin-data-table,
-  .admin-data-table tbody,
-  .admin-data-table tr,
-  .admin-data-table td {
-    display: block;
-    width: 100%;
-  }
-
-  .admin-data-table tr {
-    border-bottom: 1px solid #e5e7eb;
-    padding: 12px 14px 8px;
-  }
-
-  .admin-data-table td {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 12px;
-    padding: 8px 0;
-    border-bottom: 0;
-  }
-
-  .admin-data-table td::before {
-    content: attr(data-label);
-    font-size: 0.72rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.3px;
-    color: #6b7280;
-    flex-shrink: 0;
-    padding-top: 4px;
-  }
-
   .page-header-row {
     align-items: flex-start;
   }
 
-  .admin-page-title {
-    font-size: 1.35rem;
+  .admin-page-title,
+  .admin-view-title {
+    font-size: 1.28rem;
   }
 
   .table-filter-bar {
@@ -378,6 +373,23 @@
 
   .admin-search-input-wrap {
     max-width: none;
+  }
+
+  .admin-menu-toggle,
+  .sidebar-close,
+  .table-action-btn {
+    min-width: 40px;
+    min-height: 40px;
+  }
+
+  .admin-layout .btn {
+    min-height: 40px;
+  }
+
+  .stock-filter-btn,
+  .status-tab-btn {
+    min-height: 40px;
+    padding: 8px 12px;
   }
 }
 
@@ -392,7 +404,7 @@
   }
 
   .admin-name {
-    max-width: 110px;
+    max-width: 96px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -403,11 +415,36 @@
   }
 
   .admin-layout .btn {
-    white-space: normal;
+    white-space: nowrap;
   }
 
+  .table-container-card,
   .card {
-    overflow: hidden;
+    overflow-x: hidden;
+  }
+
+  .table-container-card .admin-table-responsive,
+  .card .admin-table-wrap,
+  .card .admin-table-container {
+    overflow-x: auto;
+  }
+}
+
+@media (max-width: 420px) {
+  .admin-header {
+    padding: 0 10px;
+  }
+
+  .admin-page-content {
+    padding: 10px;
+  }
+
+  .portal-badge {
+    display: none;
+  }
+
+  .admin-name {
+    display: none;
   }
 }
 

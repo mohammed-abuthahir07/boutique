@@ -35,6 +35,7 @@ export default function AdminProductDetailPage() {
   const [uploadModalOpen, setUploadModalOpen] = useState(false);
   const [uploadColor, setUploadColor] = useState('');
   const [selectedFiles, setSelectedFiles] = useState([]);
+  const [filePreviews, setFilePreviews] = useState([]);
   const [uploading, setUploading] = useState(false);
 
   // Delete Image State
@@ -167,10 +168,29 @@ export default function AdminProductDetailPage() {
   };
 
   // Image Actions
+  const clearFilePreviews = (urls) => {
+    (urls || []).forEach((url) => {
+      if (url && url.startsWith('blob:')) URL.revokeObjectURL(url);
+    });
+  };
+
   const openUploadModal = (color) => {
     setUploadColor(color);
     setSelectedFiles([]);
+    setFilePreviews((prev) => {
+      clearFilePreviews(prev);
+      return [];
+    });
     setUploadModalOpen(true);
+  };
+
+  const handleUploadFilesChange = (e) => {
+    const files = Array.from(e.target.files || []);
+    setSelectedFiles(files);
+    setFilePreviews((prev) => {
+      clearFilePreviews(prev);
+      return files.map((file) => URL.createObjectURL(file));
+    });
   };
 
   const handleUploadSubmit = async (e) => {
@@ -191,6 +211,10 @@ export default function AdminProductDetailPage() {
         success(res.message || 'Images uploaded successfully');
         setUploadModalOpen(false);
         setSelectedFiles([]);
+        setFilePreviews((prev) => {
+          clearFilePreviews(prev);
+          return [];
+        });
         loadProduct();
       }
     } catch (err) {
@@ -346,26 +370,27 @@ export default function AdminProductDetailPage() {
                     {variants.length === 0 ? (
                       <p className="no-items-text">No sizes added for {colorName} yet.</p>
                     ) : (
+                      <div className="admin-table-responsive">
                       <table className="admin-variants-table">
                         <thead>
                           <tr>
-                            <th>Size Fit</th>
-                            <th>Available Stock</th>
-                            <th className="text-right">Manage</th>
+                            <th>Size</th>
+                            <th>Stock</th>
+                            <th className="text-right">Actions</th>
                           </tr>
                         </thead>
                         <tbody>
                           {variants.map((v) => (
                             <tr key={v.id}>
-                              <td>
+                              <td data-label="Size">
                                 <span className="size-badge-pill">{v.size}</span>
                               </td>
-                              <td>
+                              <td data-label="Stock">
                                 <span className={`stock-text ${Number(v.stock) <= 0 ? 'depleted' : ''}`}>
                                   {v.stock} unit{v.stock === 1 ? '' : 's'}
                                 </span>
                               </td>
-                              <td className="text-right">
+                              <td data-label="Actions" className="text-right">
                                 <div className="action-buttons-wrap">
                                   <button
                                     type="button"
@@ -389,6 +414,7 @@ export default function AdminProductDetailPage() {
                           ))}
                         </tbody>
                       </table>
+                      </div>
                     )}
                   </div>
 
@@ -551,12 +577,19 @@ export default function AdminProductDetailPage() {
               multiple
               accept="image/jpeg,image/png,image/webp,image/jpg"
               className="form-input"
-              onChange={(e) => setSelectedFiles(Array.from(e.target.files || []))}
+              onChange={handleUploadFilesChange}
               required
             />
             <span className="form-hint">
               {selectedFiles.length} file{selectedFiles.length === 1 ? '' : 's'} selected.
             </span>
+            {filePreviews.length > 0 && (
+              <div className="upload-preview-grid">
+                {filePreviews.map((src, index) => (
+                  <img key={`${src}-${index}`} src={src} alt="" className="upload-preview-thumb" />
+                ))}
+              </div>
+            )}
           </div>
 
           <div className="modal-actions-row">

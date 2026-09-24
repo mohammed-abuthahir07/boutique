@@ -87,3 +87,14 @@
   color: var(--color-accent);
   background-color: var(--color-accent-light);
 }
+
+@media (max-width: 768px) {
+  .filter-controls-right {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .admin-cat-select {
+    width: 100%;
+  }
+}

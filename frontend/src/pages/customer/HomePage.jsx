@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { ArrowRight, Sparkles, ShieldCheck, Truck, RefreshCw } from 'lucide-react';
 import ProductGrid, { ProductGridSkeleton } from '../../components/customer/ProductGrid';
 import { useCatalog } from '../../context/CatalogContext';
+import CategoryCover from '../../components/customer/CategoryCover';
 import OfferPromo from '../../components/customer/OfferPromo';
 import collection from '../../assets/collections.png';
 import './HomePage.css';
@@ -84,12 +85,13 @@ export default function HomePage() {
             </div>
 
             <div className="categories-grid">
-              {categories.map((cat, idx) => (
+              {categories.map((cat) => (
                 <Link
                   key={cat.id}
                   to={`/shop?category=${encodeURIComponent(cat.id)}`}
-                  className={`category-tile cat-tile-${(idx % 3) + 1}`}
+                  className="category-tile"
                 >
+                  <CategoryCover category={cat} alt={cat.name} />
                   <div className="category-tile-overlay"></div>
                   <div className="category-tile-content">
                     <span className="cat-count">Atelier Curations</span>

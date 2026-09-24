@@ -136,19 +136,19 @@ export default function AdminProductFormPage() {
         </Link>
         <span className="section-subtitle">Catalog Specification</span>
         <h1 className="admin-page-title">
-          {isEdit ? `Edit Product: ${formData.name}` : 'Create New Silhouette'}
+          {isEdit ? `Edit Product${formData.name ? `: ${formData.name}` : ''}` : 'Create Product'}
         </h1>
         <p className="form-lead-text">
-          Define core product attributes. You can configure color variants and upload high-resolution color lookbook images after creation.
+          Save core product details first. Color, size, stock variants, and color images are managed on the product page after creation.
         </p>
       </div>
 
       <div className="form-grid">
         <form onSubmit={handleSubmit} className="card product-form-card">
-          <h3 className="card-section-title">Core Information</h3>
-          <div className="gold-divider"></div>
+          <section className="admin-form-section">
+            <h3 className="card-section-title">Product information</h3>
+            <p className="admin-form-section-hint">Name, category, price, and listing image.</p>
 
-          {/* Category */}
           <div className="form-group">
             <label htmlFor="prod-category" className="form-label">
               Category *
@@ -255,22 +255,38 @@ export default function AdminProductFormPage() {
             </span>
           </div>
 
-          {/* Status (If Edit) */}
+          </section>
+
+          {!isEdit && (
+            <section className="admin-form-section admin-form-section-muted">
+              <h3 className="card-section-title">Variants and color images</h3>
+              <p className="admin-form-section-hint">
+                After creating the product you can add Color → Size → Stock, then upload images per color. Those APIs stay on the product detail page.
+              </p>
+            </section>
+          )}
+
           {isEdit && (
-            <div className="form-group">
-              <label htmlFor="prod-status" className="form-label">
-                Catalog Status
-              </label>
-              <select
-                id="prod-status"
-                className="form-select"
-                value={formData.status}
-                onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-              >
-                <option value="ACTIVE">ACTIVE</option>
-                <option value="INACTIVE">INACTIVE</option>
-              </select>
-            </div>
+            <section className="admin-form-section">
+              <h3 className="card-section-title">Product status</h3>
+              <div className="form-group">
+                <label htmlFor="prod-status" className="form-label">
+                  Catalog Status
+                </label>
+                <select
+                  id="prod-status"
+                  className="form-select"
+                  value={formData.status}
+                  onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+                >
+                  <option value="ACTIVE">ACTIVE</option>
+                  <option value="INACTIVE">INACTIVE</option>
+                </select>
+              </div>
+              <Link to={`/admin/products/${id}`} className="admin-form-inline-link">
+                Manage variants and color images
+              </Link>
+            </section>
           )}
 
           <div className="form-footer-buttons">

@@ -24,6 +24,27 @@ import { FALLBACK_PRODUCT_IMAGE } from '../../config/apiConfig';
 import { formatPrice } from '../../utils/format';
 import './ProductDetailPage.css';
 
+function sameColor(a, b) {
+  return String(a || '').trim().toLowerCase() === String(b || '').trim().toLowerCase();
+}
+
+function sameSize(a, b) {
+  return String(a || '').trim().toLowerCase() === String(b || '').trim().toLowerCase();
+}
+
+function variantsForColor(variants, color) {
+  return (variants || []).filter((v) => v.color && sameColor(v.color, color));
+}
+
+function pickVariantForColor(colorVariants, previousSize) {
+  if (!colorVariants.length) return null;
+  if (previousSize) {
+    const matchingSize = colorVariants.find((v) => sameSize(v.size, previousSize) && Number(v.stock) > 0);
+    if (matchingSize) return matchingSize;
+  }
+  return colorVariants.find((v) => Number(v.stock) > 0) || colorVariants[0];
+}
+
 export default function ProductDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -55,21 +76,12 @@ export default function ProductDetailPage() {
           if (res.success && res.product) {
             setProduct(res.product);
 
-            // Initialize default color and variant
             const variants = res.product.variants || [];
             if (variants.length > 0) {
-              // Pick first color
-              const firstColor = variants[0].color;
+              const firstInStock = variants.find((v) => v.color && Number(v.stock) > 0);
+              const firstColor = (firstInStock || variants[0]).color;
               setSelectedColor(firstColor);
-
-              // Available variants for this color
-              const colorVariants = variants.filter(
-                (v) => v.color.toLowerCase() === firstColor.toLowerCase()
-              );
-              // Pick first in-stock variant, or first
-              const defaultVar =
-                colorVariants.find((v) => Number(v.stock) > 0) || colorVariants[0];
-              setSelectedVariant(defaultVar);
+              setSelectedVariant(pickVariantForColor(variantsForColor(variants, firstColor)));
             }
           } else {
             setErrorMessage('Product not found or unavailable');
@@ -90,64 +102,39 @@ export default function ProductDetailPage() {
     };
   }, [id]);
 
-  // Extract unique colors available for this product
   const availableColors = useMemo(() => {
-    if (!product || !product.variants) return [];
-    const colorsSet = new Set();
-    product.variants.forEach((v) => {
-      if (v.color) colorsSet.add(v.color);
+    const seen = new Map();
+    (product?.variants || []).forEach((v) => {
+      if (!v.color) return;
+      const key = String(v.color).trim().toLowerCase();
+      if (!seen.has(key)) seen.set(key, v.color.trim());
     });
-    return Array.from(colorsSet);
+    return Array.from(seen.values());
   }, [product]);
 
-  // Handle color change: updates color images and available sizes
   const handleColorSelect = (color) => {
     setSelectedColor(color);
-
-    if (!product || !product.variants) return;
-
-    // Filter variants for selected color
-    const colorVariants = product.variants.filter(
-      (v) => v.color.toLowerCase() === color.toLowerCase()
-    );
-
-    // Pick first in-stock variant, or first variant of this color
-    const inStockVar = colorVariants.find((v) => Number(v.stock) > 0) || colorVariants[0] || null;
-    setSelectedVariant(inStockVar);
+    const colorVariants = variantsForColor(product?.variants, color);
+    setSelectedVariant(pickVariantForColor(colorVariants, selectedVariant?.size));
     setQuantity(1);
   };
 
-  // Variants available for currently selected color
-  const variantsForSelectedColor = useMemo(() => {
-    if (!product || !product.variants || !selectedColor) return [];
-    return product.variants.filter(
-      (v) => v.color.toLowerCase() === selectedColor.toLowerCase()
-    );
-  }, [product, selectedColor]);
+  const variantsForSelectedColor = useMemo(
+    () => variantsForColor(product?.variants, selectedColor),
+    [product, selectedColor]
+  );
 
-  // Images for currently selected color
   const imagesForSelectedColor = useMemo(() => {
     if (!product) return [FALLBACK_PRODUCT_IMAGE];
 
-    const seen = new Set();
-    const images = [];
-    const push = (img) => {
-      if (!img || seen.has(img)) return;
-      seen.add(img);
-      images.push(img);
-    };
+    const colorImages = (product.color_images || [])
+      .filter((ci) => ci.color && selectedColor && sameColor(ci.color, selectedColor))
+      .sort((a, b) => (Number(a.sort_order) || 0) - (Number(b.sort_order) || 0))
+      .map((ci) => ci.image)
+      .filter(Boolean);
 
-    const colorImages = product.color_images || [];
-    push(product.image);
-    if (selectedColor && colorImages.length > 0) {
-      colorImages
-        .filter((ci) => ci.color && ci.color.toLowerCase() === selectedColor.toLowerCase())
-        .sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0))
-        .forEach((ci) => push(ci.image));
-    }
-    colorImages.forEach((ci) => push(ci.image));
-
-    return images.length > 0 ? images : [FALLBACK_PRODUCT_IMAGE];
+    if (colorImages.length > 0) return colorImages;
+    return product.image ? [product.image] : [FALLBACK_PRODUCT_IMAGE];
   }, [product, selectedColor]);
 
   // Stock check
@@ -219,7 +206,11 @@ export default function ProductDetailPage() {
         <div className="product-detail-grid">
           {/* Left Column: Color-Specific Product Gallery */}
           <div className="product-gallery-col">
-            <ProductGallery images={imagesForSelectedColor} altText={product.name} />
+            <ProductGallery
+              key={selectedColor || 'gallery'}
+              images={imagesForSelectedColor}
+              altText={`${product.name}${selectedColor ? ` — ${selectedColor}` : ''}`}
+            />
           </div>
 
           {/* Right Column: Product Config & Purchase Details */}
