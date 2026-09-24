@@ -42,7 +42,7 @@ export default function AdminLayout() {
       <aside className={`admin-sidebar ${sidebarOpen ? 'sidebar-open' : ''}`}>
         <div className="sidebar-brand">
           <Link to="/admin/dashboard" className="admin-brand-link">
-            <span className="brand-title">MAISON</span>
+            <span className="brand-title">SRI ANNAI BOUTIQUE</span>
             <span className="brand-portal">ADMIN</span>
           </Link>
           <button

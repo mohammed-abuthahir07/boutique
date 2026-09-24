@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom';
 import { Sparkles, Award, Users, Heart, ArrowRight } from 'lucide-react';
 import Breadcrumbs from '../../components/common/Breadcrumbs';
 import './AboutPage.css';
+import happy from "../../assets/happy.png"
+import women2 from "../../assets/women2.png"
 
 export default function AboutPage() {
   return (
@@ -43,13 +45,13 @@ export default function AboutPage() {
             <div className="narrative-images">
               <div className="narrative-img-box img-1">
                 <img
-                  src="https://images.unsplash.com/photo-1558769132-cb1aea458c5e?q=80&w=800&auto=format&fit=crop"
+                  src= {happy}
                   alt="Atelier artisan embroidery"
                 />
               </div>
               <div className="narrative-img-box img-2">
                 <img
-                  src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=800&auto=format&fit=crop"
+                  src={women2}
                   alt="Fine silk drape"
                 />
               </div>
