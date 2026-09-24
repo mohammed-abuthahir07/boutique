@@ -91,7 +91,9 @@ export default function CartPage() {
                 <div className="summary-gold-line"></div>
 
                 <div className="summary-line">
-                  <span className="summary-label">Bag Subtotal</span>
+                  <span className="summary-label">Bag 
+                    
+                  </span>
                   <span className="summary-val">{formatPrice(cart.subtotal)}</span>
                 </div>
 

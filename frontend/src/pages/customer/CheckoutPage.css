@@ -186,7 +186,6 @@
 }
 
 .review-item-price {
-  font-family: var(--font-serif);
   font-weight: 600;
   font-size: 0.95rem;
   color: var(--color-primary);
@@ -227,7 +226,6 @@
 }
 
 .grand-total {
-  font-family: var(--font-serif);
   font-size: 1.6rem;
   font-weight: 700;
   color: var(--color-primary);

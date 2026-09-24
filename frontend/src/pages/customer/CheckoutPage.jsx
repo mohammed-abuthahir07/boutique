@@ -210,7 +210,7 @@ export default function CheckoutPage() {
           <Link to="/cart" className="back-to-cart-link">
             <ArrowLeft size={16} /> Return to Shopping Bag
           </Link>
-          <h1 className="checkout-title">Client Delivery & Atelier Order</h1>
+          <h1 className="checkout-title">Client Orders Details</h1>
           <p className="checkout-subtitle">
             Please provide your bespoke shipping destination. Your garments will be carefully pressed, wrapped, and insured.
           </p>
