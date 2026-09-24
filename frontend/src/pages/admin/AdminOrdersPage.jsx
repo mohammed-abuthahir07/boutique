@@ -119,6 +119,7 @@ export default function AdminOrdersPage() {
                   <th>Order Reference</th>
                   <th>Client Information</th>
                   <th>Order Total</th>
+                  <th>Payment</th>
                   <th>Status</th>
                   <th>Placement Date</th>
                   <th className="text-right">Action</th>
@@ -144,6 +145,16 @@ export default function AdminOrdersPage() {
                       </div>
                     </td>
                     <td className="font-semibold" data-label="Total">{formatPrice(ord.total_amount)}</td>
+                    <td data-label="Payment">
+                      <div className="payment-badges-cell">
+                        <span className={`badge ${ord.payment_method === 'RAZORPAY' ? 'badge-gold' : 'badge-neutral'}`}>
+                          {ord.payment_method || 'DIRECT'}
+                        </span>
+                        <span className={`badge badge-${(ord.payment_status || 'PENDING').toLowerCase()}`}>
+                          {ord.payment_status || 'PENDING'}
+                        </span>
+                      </div>
+                    </td>
                     <td data-label="Status">
                       <span className={`badge badge-${ord.order_status?.toLowerCase() || 'pending'}`}>
                         {ord.order_status}

@@ -9,6 +9,7 @@ import {
   Boxes,
   BarChart3,
   Users,
+  UserX,
   LogOut,
   ExternalLink,
   Menu,
@@ -121,11 +122,21 @@ export default function AdminLayout() {
 
           <NavLink
             to="/admin/customers"
+            end
             className={({ isActive }) => `admin-nav-item ${isActive ? 'active' : ''}`}
             onClick={() => setSidebarOpen(false)}
           >
             <Users size={18} />
             <span>Customers</span>
+          </NavLink>
+
+          <NavLink
+            to="/admin/deleted-customers"
+            className={({ isActive }) => `admin-nav-item ${isActive ? 'active' : ''}`}
+            onClick={() => setSidebarOpen(false)}
+          >
+            <UserX size={18} />
+            <span>Deleted Customers</span>
           </NavLink>
         </nav>
 

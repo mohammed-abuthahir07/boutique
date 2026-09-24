@@ -379,6 +379,16 @@ button {
   color: #666;
 }
 
+.badge-paid {
+  background-color: var(--color-success-bg);
+  color: var(--color-success);
+}
+
+.badge-failed {
+  background-color: var(--color-danger-bg);
+  color: var(--color-danger);
+}
+
 .badge-pending, .badge-warning {
   background-color: var(--color-warning-bg);
   color: var(--color-warning);

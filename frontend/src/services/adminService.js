@@ -220,6 +220,28 @@ export const adminService = {
   async getCustomerOrderDetail(id, orderId) {
     return apiClient.get(`/api/admin/customers/${id}/orders/${orderId}`, { authType: 'admin' });
   },
+
+  // === DELETED CUSTOMERS (archive) ===
+
+  async getDeletedCustomers(search = '') {
+    const query = search ? `?search=${encodeURIComponent(search)}` : '';
+    return apiClient.get(`/api/admin/deleted-customers${query}`, { authType: 'admin' });
+  },
+
+  async getDeletedCustomerDetails(customerId) {
+    return apiClient.get(`/api/admin/deleted-customers/${customerId}`, { authType: 'admin' });
+  },
+
+  async getDeletedCustomerOrderDetails(customerId, orderId) {
+    return apiClient.get(
+      `/api/admin/deleted-customers/${customerId}/orders/${orderId}`,
+      { authType: 'admin' }
+    );
+  },
+
+  async deleteDeletedCustomer(customerId) {
+    return apiClient.delete(`/api/admin/deleted-customers/${customerId}`, { authType: 'admin' });
+  },
 };
 
 export default adminService;

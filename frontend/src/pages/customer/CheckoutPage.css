@@ -50,6 +50,64 @@
   padding: 32px;
 }
 
+.payment-method-section {
+  margin: 8px 0 4px;
+}
+
+.payment-method-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.payment-method-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 16px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: #fff;
+  cursor: pointer;
+  max-width: 100%;
+}
+
+.payment-method-card input {
+  margin-top: 4px;
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+}
+
+.payment-method-card span {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.payment-method-card strong {
+  font-size: 0.95rem;
+  color: var(--color-primary);
+}
+
+.payment-method-card em {
+  font-style: normal;
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  line-height: 1.4;
+}
+
+.payment-method-card.active {
+  border-color: var(--color-accent);
+  background: var(--color-accent-subtle);
+}
+
+.payment-flow-error {
+  margin-bottom: 12px;
+}
+
 .payment-notice-box {
   display: flex;
   align-items: flex-start;

@@ -1,0 +1,109 @@
+.deleted-customers-table-wrap {
+  overflow-x: auto;
+  max-width: 100%;
+}
+
+.deleted-customers-table-wrap .admin-table {
+  min-width: 860px;
+}
+
+.cust-spent {
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.deleted-detail-header {
+  align-items: flex-start;
+}
+
+.deleted-back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  margin-bottom: 10px;
+}
+
+.deleted-back-link:hover {
+  color: var(--color-primary);
+}
+
+.deleted-archive-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-danger);
+  margin: 0 0 8px;
+}
+
+.deleted-info-card {
+  padding: 24px;
+}
+
+.deleted-section-title {
+  padding: 18px 18px 0;
+}
+
+.archived-order-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.archived-order-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px 18px;
+}
+
+.archived-field-label {
+  display: block;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  margin-bottom: 4px;
+}
+
+.archived-field-wide {
+  grid-column: 1 / -1;
+}
+
+.archived-signature {
+  word-break: break-all;
+  font-family: monospace;
+  font-size: 0.75rem;
+}
+
+.profile-delete-copy {
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+  line-height: 1.5;
+  margin-bottom: 12px;
+}
+
+.profile-delete-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 22px;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 768px) {
+  .deleted-detail-header {
+    flex-direction: column;
+  }
+
+  .archived-order-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .deleted-info-card {
+    padding: 16px;
+  }
+}

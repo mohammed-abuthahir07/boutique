@@ -90,6 +90,124 @@ const OrderModel = {
     },
 
 
+    async createPaidOrder(connection, {
+        customerId,
+        orderId,
+        customerName,
+        customerEmail,
+        customerPhone,
+        shippingAddress,
+        totalAmount,
+        razorpayOrderId,
+        razorpayPaymentId,
+        razorpaySignature
+    }) {
+
+        const [result] = await connection.query(`
+            INSERT INTO orders
+            (
+                customer_id,
+                order_id,
+                customer_name,
+                customer_email,
+                customer_phone,
+                shipping_address,
+                total_amount,
+                order_status,
+                payment_method,
+                payment_status,
+                razorpay_order_id,
+                razorpay_payment_id,
+                razorpay_signature
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, 'PENDING', 'RAZORPAY', 'PAID', ?, ?, ?)
+        `, [
+            customerId,
+            orderId,
+            customerName,
+            customerEmail,
+            customerPhone,
+            shippingAddress,
+            totalAmount,
+            razorpayOrderId,
+            razorpayPaymentId,
+            razorpaySignature
+        ]);
+
+        return result.insertId;
+    },
+
+
+    async findByRazorpayPaymentId(razorpayPaymentId, customerId) {
+
+        const [orders] = await db.query(`
+            SELECT
+                id,
+                customer_id,
+                order_id,
+                customer_name,
+                customer_email,
+                customer_phone,
+                shipping_address,
+                total_amount,
+                order_status,
+                payment_method,
+                payment_status,
+                created_at,
+                updated_at
+            FROM orders
+            WHERE razorpay_payment_id = ?
+              AND customer_id = ?
+            LIMIT 1
+        `, [
+            razorpayPaymentId,
+            customerId
+        ]);
+
+        if (!orders[0]) {
+            return null;
+        }
+
+        const [items] = await db.query(`
+            SELECT
+                id,
+                product_id,
+                variant_id,
+                variant_color,
+                variant_size,
+                product_name,
+                price,
+                quantity,
+                subtotal,
+                created_at
+            FROM order_items
+            WHERE order_id = ?
+            ORDER BY id ASC
+        `, [
+            orders[0].id
+        ]);
+
+        return {
+            ...orders[0],
+            customer: {
+                name: orders[0].customer_name,
+                email: orders[0].customer_email,
+                phone: orders[0].customer_phone
+            },
+            items: items.map((item) => ({
+                product_id: item.product_id,
+                variant_id: item.variant_id,
+                color: item.variant_color,
+                size: item.variant_size,
+                product_name: item.product_name,
+                price: item.price,
+                quantity: item.quantity,
+                subtotal: item.subtotal
+            }))
+        };
+    },
+
+
     // --------------------------------------------------
     // CREATE ORDER ITEM
     // --------------------------------------------------

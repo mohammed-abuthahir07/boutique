@@ -38,6 +38,11 @@ export function WishlistProvider({ children }) {
     fetchFavorites();
   }, [fetchFavorites, customer]);
 
+  const clearWishlistState = () => {
+    setFavorites([]);
+    setFavoriteIds(new Set());
+  };
+
   const isFavorite = useCallback(
     (productId) => {
       return favoriteIds.has(Number(productId));
@@ -92,6 +97,7 @@ export function WishlistProvider({ children }) {
         isFavorite,
         toggleFavorite,
         fetchFavorites,
+        clearWishlistState,
       }}
     >
       {children}

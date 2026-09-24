@@ -185,6 +185,19 @@
   color: var(--color-text-main);
 }
 
+.payment-badges-cell {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+.payment-id-line {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
 @media (max-width: 900px) {
   .order-manifest-grid {
     grid-template-columns: 1fr;

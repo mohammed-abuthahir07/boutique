@@ -68,11 +68,19 @@ export const customerService = {
   },
 
   /**
-   * Update customer profile name & phone
-   * @param {Object} data - { name, phone }
+   * Update customer profile name, phone, and optional profile image.
+   * @param {Object|FormData} data - { name, phone } or FormData with profile_image
    */
   async updateProfile(data) {
     return apiClient.put('/api/customer/profile', data, { authType: 'customer' });
+  },
+
+  /**
+   * Permanently delete the authenticated customer's account.
+   * Customer ID is taken from the JWT on the server.
+   */
+  async deleteAccount() {
+    return apiClient.delete('/api/customer/account', { authType: 'customer' });
   },
 
   // === FAVORITES ===
@@ -151,6 +159,14 @@ export const customerService = {
    */
   async createOrder(data) {
     return apiClient.post('/api/customer/orders', data, { authType: 'customer' });
+  },
+
+  async createRazorpayOrder(data) {
+    return apiClient.post('/api/customer/payment/razorpay/create-order', data, { authType: 'customer' });
+  },
+
+  async verifyRazorpayPayment(data) {
+    return apiClient.post('/api/customer/payment/razorpay/verify', data, { authType: 'customer' });
   },
 
   /**

@@ -13,6 +13,7 @@ const analyticsRoutes = require("./admin/routes/analyticsRoutes");
 const dashboardRoutes = require("./admin/routes/dashboardRoutes");
 const inventoryRoutes = require("./admin/routes/inventoryRoutes");
 const customerRoutes = require("./admin/routes/customerRoutes");
+const deletedCustomerRoutes = require("./admin/routes/deletedCustomerRoutes");
 const customerAuthRoutes = require("./customer/routes/customerauthRoutes");
 const publicProductRoutes = require("./public/routes/productRoutes");
 const publicOfferRoutes = require("./public/routes/offerRoutes");
@@ -21,6 +22,8 @@ const customerProfileRoutes = require("./customer/routes/profileRoutes");
 const customerFavoriteRoutes = require("./customer/routes/favoriteRoutes");
 const customerCartRoutes = require("./customer/routes/cartRoutes");
 const customerOrderRoutes = require("./customer/routes/orderRoutes");
+const customerPaymentRoutes = require("./customer/routes/paymentRoutes");
+const customerAccountRoutes = require("./customer/routes/accountRoutes");
 
 
 app.use(cors());
@@ -40,6 +43,7 @@ app.use("/api/admin/analytics", analyticsRoutes);
 app.use("/api/admin/dashboard", dashboardRoutes);
 app.use("/api/admin/inventory", inventoryRoutes);
 app.use("/api/admin/customers", customerRoutes);
+app.use("/api/admin/deleted-customers", deletedCustomerRoutes);
 app.use("/api/customer/auth", customerAuthRoutes);
 
 // Public Side
@@ -52,6 +56,8 @@ app.use("/api/customer/profile", customerProfileRoutes);
 app.use("/api/customer/favorites", customerFavoriteRoutes);
 app.use("/api/customer/cart", customerCartRoutes);
 app.use("/api/customer/orders", customerOrderRoutes);
+app.use("/api/customer/payment", customerPaymentRoutes);
+app.use("/api/customer/account", customerAccountRoutes);
 
 
 

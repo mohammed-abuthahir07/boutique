@@ -1,3 +1,4 @@
+const fs = require("fs");
 const ProfileModel = require("../models/profileModel");
 
 const ProfileController = {
@@ -49,7 +50,14 @@ const ProfileController = {
                 phone
             } = req.body;
 
+            const uploadedImage = req.file
+                ? `/uploads/customers/${req.file.filename}`
+                : null;
+
             if (!name || !name.trim()) {
+                if (req.file && fs.existsSync(req.file.path)) {
+                    fs.unlinkSync(req.file.path);
+                }
                 return res.status(400).json({
                     success: false,
                     message: "Name is required"
@@ -57,6 +65,9 @@ const ProfileController = {
             }
 
             if (name.trim().length < 2) {
+                if (req.file && fs.existsSync(req.file.path)) {
+                    fs.unlinkSync(req.file.path);
+                }
                 return res.status(400).json({
                     success: false,
                     message: "Name must be at least 2 characters"
@@ -67,10 +78,33 @@ const ProfileController = {
                 await ProfileModel.findById(customerId);
 
             if (!customer) {
+                if (req.file && fs.existsSync(req.file.path)) {
+                    fs.unlinkSync(req.file.path);
+                }
                 return res.status(404).json({
                     success: false,
                     message: "Customer not found"
                 });
+            }
+
+            let profileImage = customer.profile_image;
+
+            if (uploadedImage) {
+                profileImage = uploadedImage;
+
+                if (
+                    customer.profile_image &&
+                    customer.profile_image.startsWith("/uploads/customers/")
+                ) {
+                    const oldImagePath = customer.profile_image.replace(
+                        "/uploads/",
+                        "uploads/"
+                    );
+
+                    if (fs.existsSync(oldImagePath)) {
+                        fs.unlinkSync(oldImagePath);
+                    }
+                }
             }
 
             const updatedCustomer =
@@ -81,8 +115,7 @@ const ProfileController = {
                         phone: phone
                             ? phone.trim()
                             : null,
-                        profileImage:
-                            customer.profile_image
+                        profileImage
                     }
                 );
 

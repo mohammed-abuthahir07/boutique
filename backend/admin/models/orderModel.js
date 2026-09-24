@@ -14,6 +14,8 @@ const OrderModel = {
                 shipping_address,
                 total_amount,
                 order_status,
+                payment_method,
+                payment_status,
                 created_at,
                 updated_at
             FROM orders
@@ -37,6 +39,10 @@ const OrderModel = {
                 shipping_address,
                 total_amount,
                 order_status,
+                payment_method,
+                payment_status,
+                razorpay_order_id,
+                razorpay_payment_id,
                 created_at,
                 updated_at
             FROM orders

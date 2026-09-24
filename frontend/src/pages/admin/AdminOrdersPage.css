@@ -65,3 +65,10 @@
   font-size: 0.76rem;
   color: var(--color-text-light);
 }
+
+.payment-badges-cell {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}

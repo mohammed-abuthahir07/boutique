@@ -6,6 +6,7 @@ import {
   MapPin,
   Save,
   Clock,
+  CreditCard,
 } from 'lucide-react';
 import adminService from '../../services/adminService';
 import { useToast } from '../../context/ToastContext';
@@ -216,6 +217,34 @@ export default function AdminOrderDetailPage() {
                 <MapPin size={15} /> Delivery Destination
               </div>
               <p className="block-val address-block">{order.shipping_address}</p>
+            </div>
+
+            <div className="client-data-block">
+              <div className="block-title">
+                <CreditCard size={15} /> Payment
+              </div>
+              <div className="payment-badges-cell">
+                <span className={`badge ${order.payment_method === 'RAZORPAY' ? 'badge-gold' : 'badge-neutral'}`}>
+                  {order.payment_method || 'DIRECT'}
+                </span>
+                <span className={`badge badge-${(order.payment_status || 'PENDING').toLowerCase()}`}>
+                  {order.payment_status || 'PENDING'}
+                </span>
+              </div>
+              {order.payment_method === 'RAZORPAY' && (order.razorpay_order_id || order.razorpay_payment_id) && (
+                <>
+                  {order.razorpay_order_id && (
+                    <p className="block-subval payment-id-line">
+                      Razorpay Order ID: <span className="font-mono">{order.razorpay_order_id}</span>
+                    </p>
+                  )}
+                  {order.razorpay_payment_id && (
+                    <p className="block-subval payment-id-line">
+                      Razorpay Payment ID: <span className="font-mono">{order.razorpay_payment_id}</span>
+                    </p>
+                  )}
+                </>
+              )}
             </div>
 
             <div className="client-data-block">

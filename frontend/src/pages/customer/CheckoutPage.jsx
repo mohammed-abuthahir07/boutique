@@ -23,6 +23,28 @@ export default function CheckoutPage() {
   });
   const [submitting, setSubmitting] = useState(false);
   const [formErrors, setFormErrors] = useState({});
+  const [paymentMethod, setPaymentMethod] = useState('DIRECT');
+  const [paymentMessage, setPaymentMessage] = useState('');
+
+  const checkoutPayload = () => ({
+    name: formData.name.trim(),
+    email: formData.email.trim().toLowerCase(),
+    phone: formData.phone.trim(),
+    shipping_address: formData.shipping_address.trim(),
+  });
+
+  const loadRazorpayScript = () =>
+    new Promise((resolve, reject) => {
+      if (window.Razorpay) {
+        resolve(true);
+        return;
+      }
+      const script = document.createElement('script');
+      script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+      script.onload = () => resolve(true);
+      script.onerror = () => reject(new Error('Unable to load Razorpay Checkout'));
+      document.body.appendChild(script);
+    });
 
   // Auto-populate from logged-in customer profile
   useEffect(() => {
@@ -72,6 +94,73 @@ export default function CheckoutPage() {
     return Object.keys(errs).length === 0;
   };
 
+  const completeOrder = (res) => {
+    if (res.success && res.order) {
+      success(res.message || 'Order placed successfully');
+      clearCartState();
+      navigate('/order-success', { state: { order: res.order } });
+      return true;
+    }
+    error(res.message || 'Failed to place order');
+    return false;
+  };
+
+  const startRazorpayPayment = async () => {
+    setPaymentMessage('');
+    const payload = checkoutPayload();
+    const created = await customerService.createRazorpayOrder(payload);
+
+    if (!created.success || !created.razorpay_order_id || !created.key_id) {
+      throw new Error(created.message || 'Unable to start online payment');
+    }
+
+    await loadRazorpayScript();
+
+    await new Promise((resolve, reject) => {
+      const razorpay = new window.Razorpay({
+        key: created.key_id,
+        amount: created.amount,
+        currency: created.currency || 'INR',
+        order_id: created.razorpay_order_id,
+        name: 'Maison Boutique',
+        description: 'Online payment',
+        prefill: {
+          name: created.customer?.name || payload.name,
+          email: created.customer?.email || payload.email,
+          contact: created.customer?.phone || payload.phone,
+        },
+        handler: async (response) => {
+          try {
+            const verified = await customerService.verifyRazorpayPayment({
+              ...payload,
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+            });
+            if (!completeOrder(verified)) {
+              reject(new Error(verified.message || 'Payment verification failed'));
+              return;
+            }
+            resolve();
+          } catch (err) {
+            reject(err);
+          }
+        },
+        modal: {
+          ondismiss: () => {
+            reject(new Error('Payment cancelled. Your cart is unchanged.'));
+          },
+        },
+      });
+
+      razorpay.on('payment.failed', (event) => {
+        reject(new Error(event?.error?.description || 'Payment failed. Your cart is unchanged.'));
+      });
+
+      razorpay.open();
+    });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -80,24 +169,22 @@ export default function CheckoutPage() {
       return;
     }
 
-    setSubmitting(true);
-    try {
-      const res = await customerService.createOrder({
-        name: formData.name.trim(),
-        email: formData.email.trim().toLowerCase(),
-        phone: formData.phone.trim(),
-        shipping_address: formData.shipping_address.trim(),
-      });
+    if (submitting) return;
 
-      if (res.success && res.order) {
-        success(res.message || 'Order placed successfully');
-        clearCartState();
-        navigate('/order-success', { state: { order: res.order } });
-      } else {
-        error(res.message || 'Failed to place order');
+    setSubmitting(true);
+    setPaymentMessage('');
+    try {
+      if (paymentMethod === 'RAZORPAY') {
+        await startRazorpayPayment();
+        return;
       }
+
+      const res = await customerService.createOrder(checkoutPayload());
+      completeOrder(res);
     } catch (err) {
-      error(err.message || 'An error occurred while placing your order.');
+      const message = err.message || 'An error occurred while placing your order.';
+      setPaymentMessage(message);
+      error(message);
     } finally {
       setSubmitting(false);
     }
@@ -207,6 +294,39 @@ export default function CheckoutPage() {
                 </span>
               </div>
 
+              <div className="payment-method-section">
+                <h3 className="card-section-title">Payment Method</h3>
+                <div className="gold-divider"></div>
+                <div className="payment-method-list" role="radiogroup" aria-label="Payment method">
+                  <label className={`payment-method-card ${paymentMethod === 'DIRECT' ? 'active' : ''}`}>
+                    <input
+                      type="radio"
+                      name="payment_method"
+                      value="DIRECT"
+                      checked={paymentMethod === 'DIRECT'}
+                      onChange={() => setPaymentMethod('DIRECT')}
+                    />
+                    <span>
+                      <strong>Direct Order</strong>
+                      <em>Place the order now. Payment is handled as before.</em>
+                    </span>
+                  </label>
+                  <label className={`payment-method-card ${paymentMethod === 'RAZORPAY' ? 'active' : ''}`}>
+                    <input
+                      type="radio"
+                      name="payment_method"
+                      value="RAZORPAY"
+                      checked={paymentMethod === 'RAZORPAY'}
+                      onChange={() => setPaymentMethod('RAZORPAY')}
+                    />
+                    <span>
+                      <strong>Online Payment</strong>
+                      <em>Pay securely with Razorpay Test Mode.</em>
+                    </span>
+                  </label>
+                </div>
+              </div>
+
               <div className="payment-notice-box">
                 <div className="notice-icon-wrap">
                   <ShieldCheck size={22} />
@@ -214,10 +334,14 @@ export default function CheckoutPage() {
                 <div>
                   <h4 className="notice-title">Complimentary Atelier Dispatch</h4>
                   <p className="notice-text">
-                    Orders are processed under official Maison atelier standards. Payment verification is completed during delivery handover or via concierge link.
+                    {paymentMethod === 'RAZORPAY'
+                      ? 'Your garments are reserved only after the online payment is verified.'
+                      : 'Orders are processed under official Maison atelier standards. Payment verification is completed during delivery handover or via concierge link.'}
                   </p>
                 </div>
               </div>
+
+              {paymentMessage && <p className="form-error payment-flow-error">{paymentMessage}</p>}
 
               <button
                 type="submit"
@@ -225,7 +349,13 @@ export default function CheckoutPage() {
                 className="btn btn-primary btn-lg place-order-btn"
               >
                 <Lock size={16} />
-                {submitting ? 'Confirming Order with Atelier...' : 'Place Official Order'}
+                {submitting
+                  ? paymentMethod === 'RAZORPAY'
+                    ? 'Opening payment...'
+                    : 'Confirming Order with Atelier...'
+                  : paymentMethod === 'RAZORPAY'
+                    ? `Pay ${formatPrice(cart.total)}`
+                    : 'Place Official Order'}
               </button>
             </form>
           </div>

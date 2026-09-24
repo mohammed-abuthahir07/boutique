@@ -48,6 +48,8 @@ const AdminOrderDetailPage = lazy(() => import('./pages/admin/AdminOrderDetailPa
 const AdminInventoryPage = lazy(() => import('./pages/admin/AdminInventoryPage'));
 const AdminAnalyticsPage = lazy(() => import('./pages/admin/AdminAnalyticsPage'));
 const AdminCustomersPage = lazy(() => import('./pages/admin/AdminCustomersPage'));
+const AdminDeletedCustomersPage = lazy(() => import('./pages/admin/AdminDeletedCustomersPage'));
+const AdminDeletedCustomerDetailPage = lazy(() => import('./pages/admin/AdminDeletedCustomerDetailPage'));
 
 import './App.css';
 
@@ -94,6 +96,8 @@ export default function App() {
                       <Route path="inventory" element={<AdminInventoryPage />} />
                       <Route path="analytics" element={<AdminAnalyticsPage />} />
                       <Route path="customers" element={<AdminCustomersPage />} />
+                      <Route path="deleted-customers" element={<AdminDeletedCustomersPage />} />
+                      <Route path="deleted-customers/:customerId" element={<AdminDeletedCustomerDetailPage />} />
                     </Route>
 
                     {/* ============================================================ */}

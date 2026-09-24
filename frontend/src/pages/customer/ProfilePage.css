@@ -34,18 +34,31 @@
 
 .profile-avatar-wrap {
   width: 110px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.profile-avatar-img {
+  width: 110px;
   height: 110px;
   border-radius: 50%;
   overflow: hidden;
   border: 3px solid var(--color-accent);
   box-shadow: var(--shadow-md);
-  margin-bottom: 18px;
+  object-fit: cover;
 }
 
-.profile-avatar-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+.profile-avatar-change {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--color-accent-hover);
+  cursor: pointer;
 }
 
 .profile-name {
@@ -115,8 +128,45 @@
   margin-top: 12px;
 }
 
+.profile-account-settings {
+  margin-top: 36px;
+  padding: 36px;
+}
+
+.profile-danger-zone {
+  border: 1px solid rgba(130, 31, 31, 0.22);
+  background: rgba(130, 31, 31, 0.04);
+  padding: 20px 22px;
+  border-radius: var(--radius-md, 10px);
+}
+
+.profile-danger-title {
+  font-size: 1rem;
+  color: var(--color-danger);
+  margin-bottom: 10px;
+}
+
+.profile-delete-copy {
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+  margin-bottom: 12px;
+  line-height: 1.5;
+}
+
+.profile-delete-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 22px;
+  flex-wrap: wrap;
+}
+
 @media (max-width: 850px) {
   .profile-grid {
     grid-template-columns: 1fr;
+  }
+
+  .profile-account-settings {
+    padding: 24px;
   }
 }
