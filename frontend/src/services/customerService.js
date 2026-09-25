@@ -64,6 +64,11 @@ export const customerService = {
    * Returns { success: true, customer: { id, name, email, phone, profile_image, status, ... } }
    */
   async getProfile() {
+    if (!apiClient.getCustomerToken()) {
+      const error = new Error('Customer authentication required');
+      error.status = 401;
+      throw error;
+    }
     return apiClient.get('/api/customer/profile', { authType: 'customer' });
   },
 

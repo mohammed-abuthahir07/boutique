@@ -15,6 +15,7 @@ import { useCart } from '../../context/CartContext';
 import { useWishlist } from '../../context/WishlistContext';
 import { useToast } from '../../context/ToastContext';
 import ProductGallery from '../../components/customer/ProductGallery';
+import RelatedProducts from '../../components/customer/RelatedProducts';
 import ColorSelector from '../../components/customer/ColorSelector';
 import SizeSelector from '../../components/customer/SizeSelector';
 import QuantitySelector from '../../components/customer/QuantitySelector';
@@ -396,6 +397,8 @@ export default function ProductDetailPage() {
             </div>
           </div>
         </div>
+
+        <RelatedProducts productId={product.id} categoryId={product.category_id} />
       </div>
     </div>
   );

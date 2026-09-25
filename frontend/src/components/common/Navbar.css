@@ -79,6 +79,7 @@
 
 .header-search {
   grid-area: search;
+  position: relative;
   display: flex;
   align-items: center;
   background: var(--color-bg-secondary);

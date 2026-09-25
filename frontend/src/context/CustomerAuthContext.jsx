@@ -9,10 +9,17 @@ export function CustomerAuthProvider({ children }) {
   const [token, setToken] = useState(() => apiClient.getCustomerToken());
   const [loading, setLoading] = useState(true);
 
-  // Fetch full customer profile if token is present
+  const clearCustomerAuth = useCallback(() => {
+    apiClient.setCustomerToken(null);
+    setToken(null);
+    setCustomer(null);
+  }, []);
+
+  // Fetch full customer profile only when a customer JWT is present.
   const refreshProfile = useCallback(async () => {
     const currentToken = apiClient.getCustomerToken();
-    if (!currentToken) {
+    if (!currentToken || !String(currentToken).trim()) {
+      setToken(null);
       setCustomer(null);
       setLoading(false);
       return null;
@@ -24,19 +31,18 @@ export function CustomerAuthProvider({ children }) {
         setCustomer(res.customer);
         return res.customer;
       }
+
+      clearCustomerAuth();
       return null;
     } catch (err) {
-      // If 401 or 403, token is expired/invalid/inactive
-      if (err.status === 401 || err.status === 403) {
-        apiClient.setCustomerToken(null);
-        setToken(null);
-        setCustomer(null);
+      if (err.status === 401 || err.status === 403 || err.status === 404) {
+        clearCustomerAuth();
       }
       return null;
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [clearCustomerAuth]);
 
   useEffect(() => {
     refreshProfile();
@@ -73,6 +79,7 @@ export function CustomerAuthProvider({ children }) {
     customerService.logout();
     setToken(null);
     setCustomer(null);
+    setLoading(false);
   };
 
   const isAuthenticated = Boolean(token && customer);

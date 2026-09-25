@@ -1,5 +1,6 @@
 .product-detail-page {
-  padding-bottom: 40px;
+  padding-bottom: 80px;
+  overflow-x: hidden;
 }
 
 .product-detail-container {
