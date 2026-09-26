@@ -33,25 +33,28 @@
 .category-page-tile {
   position: relative;
   min-height: 0;
-  height: 100%;
-  background: #1b1b1b;
-  border-radius: var(--radius-md);
+  min-width: 0;
+  height: auto;
+  background: #ffffff;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
   padding: 0;
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  color: #fff;
+  color: var(--color-primary);
   overflow: hidden;
-  transition: transform var(--transition-normal), box-shadow var(--transition-normal);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .category-page-media {
   position: relative;
   width: 100%;
-  height: 220px;
+  aspect-ratio: 1;
+  height: auto;
   overflow: hidden;
   flex-shrink: 0;
-  background-color: #111111;
+  background-color: #ffffff;
 }
 
 .category-page-tile .category-cover-photo,
@@ -74,36 +77,34 @@
 .category-page-tile .category-page-content {
   position: relative;
   z-index: 2;
-  padding: 18px 20px 20px;
-  background-color: #1b1b1b;
+  padding: 10px 8px 12px;
+  background-color: #ffffff;
+  text-align: center;
 }
 
 .category-page-tile:hover {
-  transform: translateY(-4px);
-  box-shadow: var(--shadow-lg);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
 }
 
-.category-page-content h3 {
-  font-family: var(--font-serif);
-  font-size: 1.5rem;
-  color: #fff;
-  margin: 8px 0 12px;
-  overflow-wrap: anywhere;
-}
-
-.category-page-content .cat-count {
-  font-size: 0.75rem;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  color: var(--color-accent);
-}
-
-.category-page-content .category-tile-cta {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 0.82rem;
+.category-page-content h3,
+.category-page-title {
+  font-family: var(--font-sans);
+  font-size: 0.92rem;
   font-weight: 600;
+  line-height: 1.3;
+  color: var(--color-primary);
+  margin: 0;
+  text-align: center;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.category-page-content .cat-count,
+.category-page-content .category-tile-cta {
+  display: none;
 }
 
 .cat-card {
@@ -197,7 +198,7 @@
   }
 
   .category-page-media {
-    height: 200px;
+    height: auto;
   }
 }
 
@@ -208,7 +209,7 @@
   }
 
   .category-page-media {
-    height: 190px;
+    height: auto;
   }
 
   .categories-title {
@@ -228,6 +229,10 @@
   }
 
   .category-page-media {
-    height: 210px;
+    height: auto;
+  }
+
+  .category-page-title {
+    font-size: 0.86rem;
   }
 }

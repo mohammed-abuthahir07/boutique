@@ -322,7 +322,10 @@
 .mobile-nav-link {
   font-size: 0.98rem;
   font-weight: 500;
-  padding: 10px 0;
+  padding: 12px 0;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
 }
 
 .mobile-nav-divider {
@@ -417,20 +420,22 @@
   }
 
   .header.header-menu-open {
-    max-height: 100dvh;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
+    box-shadow: var(--shadow-md);
   }
 
   .mobile-drawer {
     display: block;
-    flex: 1;
-    min-height: 0;
+    position: fixed;
+    top: var(--store-header-h, 148px);
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 999;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
     overscroll-behavior: contain;
-    padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+    background: #fff;
+    padding: 8px 20px calc(24px + env(safe-area-inset-bottom, 0px));
   }
 
   .mobile-search {

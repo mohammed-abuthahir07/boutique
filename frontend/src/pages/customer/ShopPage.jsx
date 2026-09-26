@@ -8,6 +8,7 @@ import Breadcrumbs from '../../components/common/Breadcrumbs';
 import { useCatalog } from '../../context/CatalogContext';
 import useDebouncedValue from '../../hooks/useDebouncedValue';
 import { colorToHex } from '../../utils/colors';
+import { syncStoreHeaderHeight } from '../../utils/storeHeaderHeight';
 import './ShopPage.css';
 
 const PAGE_SIZE = 20;
@@ -92,9 +93,8 @@ export default function ShopPage() {
   }, [selectedCategory, selectedColor, selectedSize, priceFilter, searchTerm, sortBy]);
 
   useEffect(() => {
-    const header = document.querySelector('.header');
     const syncHeader = () => {
-      document.documentElement.style.setProperty('--store-header-h', `${header?.offsetHeight || 120}px`);
+      syncStoreHeaderHeight();
     };
     syncHeader();
     window.addEventListener('resize', syncHeader);
@@ -362,16 +362,25 @@ export default function ShopPage() {
         )}
 
         <div className="mobile-shop-bar">
-          <button type="button" onClick={() => setMobileFilterOpen(true)}>
+          <button type="button" className="mobile-shop-bar-filter" onClick={() => setMobileFilterOpen(true)}>
             <SlidersHorizontal size={16} /> Filter
           </button>
-          <span className="mobile-result-count">{filteredProducts.length} results</span>
-          <select value={sortBy} onChange={(e) => setSortBy(e.target.value)} aria-label="Sort">
-            <option value="featured">Newest</option>
-            <option value="price-low">Price: Low to High</option>
-            <option value="price-high">Price: High to Low</option>
-            <option value="name-asc">Name: A to Z</option>
-          </select>
+          <span className="mobile-result-count">
+            {filteredProducts.length} {filteredProducts.length === 1 ? 'result' : 'results'}
+          </span>
+          <div className="mobile-shop-bar-sort-wrap">
+            <select
+              className="mobile-shop-bar-sort"
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+              aria-label="Sort"
+            >
+              <option value="featured">Newest</option>
+              <option value="price-low">Price: Low</option>
+              <option value="price-high">Price: High</option>
+              <option value="name-asc">Name: A–Z</option>
+            </select>
+          </div>
         </div>
       </div>
 

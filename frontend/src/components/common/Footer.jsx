@@ -51,7 +51,7 @@ export default function Footer() {
           </div>
 
           {/* Quick Links */}
-          <div className="footer-col">
+          <div className="footer-col footer-col-collection">
             <h4 className="footer-heading">Collection</h4>
             <div className="footer-gold-line"></div>
             <ul className="footer-links">
@@ -64,7 +64,7 @@ export default function Footer() {
           </div>
 
           {/* Customer Care */}
-          <div className="footer-col">
+          <div className="footer-col footer-col-help">
             <h4 className="footer-heading">Help</h4>
             <div className="footer-gold-line"></div>
             <ul className="footer-links">

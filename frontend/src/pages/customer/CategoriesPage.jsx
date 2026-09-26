@@ -1,6 +1,5 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight } from 'lucide-react';
 import { ProductGridSkeleton } from '../../components/customer/ProductGrid';
 import Breadcrumbs from '../../components/common/Breadcrumbs';
 import EmptyState from '../../components/common/EmptyState';
@@ -42,17 +41,13 @@ export default function CategoriesPage() {
           />
         ) : (
           <div className="categories-grid-page">
-            {categories.slice(0, 10).map((cat) => (
+            {categories.map((cat) => (
               <Link key={cat.id} to={`/shop?category=${encodeURIComponent(cat.id)}`} className="category-page-tile">
                 <div className="category-page-media">
                   <CategoryCover category={cat} alt={cat.name} />
                 </div>
                 <div className="category-page-content">
-                  <span className="cat-count">{cat.count} product{cat.count === 1 ? '' : 's'}</span>
-                  <h3>{cat.name}</h3>
-                  <span className="category-tile-cta">
-                    Shop now <ArrowRight size={14} />
-                  </span>
+                  <h3 className="category-page-title">{cat.name}</h3>
                 </div>
               </Link>
             ))}

@@ -8,6 +8,7 @@ import { useCatalog } from '../../context/CatalogContext';
 import { useToast } from '../../context/ToastContext';
 import useDebouncedValue from '../../hooks/useDebouncedValue';
 import { filterSearchProducts } from '../../utils/productSearch';
+import { syncStoreHeaderHeight } from '../../utils/storeHeaderHeight';
 import SearchSuggestions from './SearchSuggestions';
 import './Navbar.css';
 
@@ -64,11 +65,16 @@ export default function Navbar() {
   }, []);
 
   useEffect(() => {
-    if (!mobileMenuOpen) return undefined;
+    if (!mobileMenuOpen) {
+      syncStoreHeaderHeight();
+      return undefined;
+    }
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
+    syncStoreHeaderHeight();
     return () => {
       document.body.style.overflow = previousOverflow && previousOverflow !== 'hidden' ? previousOverflow : '';
+      syncStoreHeaderHeight();
     };
   }, [mobileMenuOpen]);
 
@@ -370,7 +376,15 @@ export default function Navbar() {
             />
             <button type="submit" className="btn btn-accent btn-sm">Go</button>
           </form>
-          <nav className="mobile-nav" aria-label="Mobile">
+          <nav
+            className="mobile-nav"
+            aria-label="Mobile"
+            onClick={(event) => {
+              if (event.target.closest('a, button')) {
+                setMobileMenuOpen(false);
+              }
+            }}
+          >
             <NavLink to="/" className="mobile-nav-link">Home</NavLink>
             <NavLink to="/shop" className="mobile-nav-link">Shop All</NavLink>
             {categories.map((cat) => (

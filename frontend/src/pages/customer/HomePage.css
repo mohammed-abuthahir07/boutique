@@ -181,31 +181,34 @@
 .categories-grid {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 24px;
+  gap: 16px;
 }
 
 .category-tile {
   position: relative;
   height: auto;
+  min-width: 0;
   min-height: 0;
-  border-radius: var(--radius-sm);
+  border-radius: 8px;
   overflow: hidden;
   display: flex;
   flex-direction: column;
   align-items: stretch;
   padding: 0;
-  color: #ffffff;
-  background-color: #1b1b1b;
-  transition: transform 0.5s ease;
+  color: var(--color-primary);
+  background-color: #ffffff;
+  border: 1px solid var(--color-border);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .category-tile-media {
   position: relative;
   width: 100%;
-  height: 220px;
+  aspect-ratio: 1;
+  height: auto;
   overflow: hidden;
   flex-shrink: 0;
-  background-color: #111111;
+  background-color: #ffffff;
 }
 
 .category-tile .category-cover-photo,
@@ -231,45 +234,30 @@
 }
 
 .category-tile:hover {
-  transform: translateY(-4px);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
 }
 
 .category-tile-content {
   position: relative;
   z-index: 2;
-  padding: 18px 20px 20px;
-  background-color: #1b1b1b;
-}
-
-.cat-count {
-  font-size: 0.72rem;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  color: var(--color-accent);
-  display: block;
-  margin-bottom: 6px;
+  padding: 10px 10px 12px;
+  background-color: #ffffff;
+  text-align: center;
 }
 
 .category-tile-title {
-  font-size: 1.8rem;
-  color: #ffffff;
-  margin-bottom: 12px;
-}
-
-.category-tile-cta {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 0.8rem;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  color: #ffffff;
-  font-weight: 500;
-  transition: color var(--transition-fast);
-}
-
-.category-tile:hover .category-tile-cta {
-  color: var(--color-accent);
+  font-family: var(--font-sans);
+  font-size: 0.92rem;
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--color-primary);
+  margin: 0;
+  text-align: center;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 /* Featured Products */
@@ -476,10 +464,7 @@
 
   .categories-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .category-tile-media {
-    height: 200px;
+    gap: 12px;
   }
 
   .brand-story-grid {
@@ -505,7 +490,7 @@
   }
 
   .category-tile-title {
-    font-size: 1.25rem;
+    font-size: 0.86rem;
   }
 
   .brand-story-badge {
@@ -533,9 +518,6 @@
     gap: 16px;
   }
 
-  .category-tile-media {
-    height: 190px;
-  }
 }
 
 @media (max-width: 480px) {
@@ -545,14 +527,10 @@
   }
 
   .category-tile-content {
-    padding: 12px;
+    padding: 8px 8px 10px;
   }
 
   .pillars-grid {
     grid-template-columns: 1fr;
-  }
-
-  .category-tile-media {
-    height: 210px;
   }
 }
