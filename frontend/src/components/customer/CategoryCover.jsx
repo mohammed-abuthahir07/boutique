@@ -14,6 +14,8 @@ export default function CategoryCover({ category, alt = '', className = '' }) {
       src={src}
       alt={alt}
       className={`category-cover-photo ${className}`.trim()}
+      loading="lazy"
+      decoding="async"
       onError={() => setFailed(true)}
     />
   );

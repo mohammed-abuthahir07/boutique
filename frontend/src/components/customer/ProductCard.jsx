@@ -30,6 +30,7 @@ function ProductCard({ product }) {
             alt={product.name}
             className="product-image"
             loading="lazy"
+            decoding="async"
             onError={(e) => {
               e.target.onerror = null;
               e.target.src = FALLBACK_PRODUCT_IMAGE;

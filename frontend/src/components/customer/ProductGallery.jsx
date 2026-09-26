@@ -33,6 +33,8 @@ export default function ProductGallery({ images = [], altText = 'Product Image' 
                 src={imgUrl}
                 alt={`${altText} thumbnail ${idx + 1}`}
                 className="gallery-thumb-img"
+                loading="lazy"
+                decoding="async"
                 onError={(e) => {
                   e.target.onerror = null;
                   e.target.src = FALLBACK_PRODUCT_IMAGE;

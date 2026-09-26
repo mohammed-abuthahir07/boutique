@@ -275,7 +275,7 @@
 
 @media (max-width: 992px) {
   .product-detail-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     gap: 16px;
   }
 
@@ -285,13 +285,38 @@
 
   .product-config-col {
     padding: 16px;
+    min-width: 0;
   }
 
   .product-main-title {
     font-size: 1.2rem;
+    overflow-wrap: anywhere;
   }
 
   .product-detail-price {
     font-size: 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .product-detail-page {
+    padding-bottom: 40px;
+  }
+
+  .product-config-col,
+  .purchase-action-panel {
+    padding: 14px;
+  }
+
+  .product-main-title {
+    font-size: 1.08rem;
+  }
+
+  .product-detail-price {
+    font-size: 1.35rem;
+  }
+
+  .product-meta-actions {
+    flex-wrap: wrap;
   }
 }

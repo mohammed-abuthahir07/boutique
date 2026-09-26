@@ -33,6 +33,7 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
+  min-height: 44px;
   padding: 8px 16px;
   background-color: var(--color-bg-card);
   border: 1px solid var(--color-border);

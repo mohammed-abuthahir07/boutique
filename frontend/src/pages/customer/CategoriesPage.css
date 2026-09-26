@@ -212,7 +212,7 @@
   }
 
   .categories-title {
-    font-size: 2rem;
+    font-size: clamp(1.5rem, 6vw, 2rem);
   }
 
   .cat-card {
@@ -223,7 +223,8 @@
 @media (max-width: 480px) {
   .categories-grid-cards,
   .categories-grid-page {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
   }
 
   .category-page-media {

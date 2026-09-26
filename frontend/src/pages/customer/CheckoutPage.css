@@ -23,7 +23,7 @@
 }
 
 .checkout-title {
-  font-size: 2.5rem;
+  font-size: clamp(1.6rem, 5vw, 2.5rem);
   color: var(--color-primary);
   margin-bottom: 6px;
 }
@@ -250,10 +250,20 @@
 
 @media (max-width: 900px) {
   .checkout-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 20px;
+  }
+
+  .checkout-card,
+  .review-card {
+    padding: 18px;
   }
 
   .review-card {
     position: static;
+  }
+
+  .review-item-title {
+    overflow-wrap: anywhere;
   }
 }

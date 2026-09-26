@@ -76,7 +76,7 @@
 
   .gallery-main-wrap {
     order: 1;
-    min-height: 300px;
+    min-height: 240px;
     aspect-ratio: 1 / 1;
   }
 

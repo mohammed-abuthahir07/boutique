@@ -5,10 +5,35 @@ import { extractProductColors, extractProductSizes, sortSizes } from '../utils/c
 const CatalogContext = createContext(null);
 const CACHE_TTL_MS = 60 * 1000;
 
+const ENRICH_CONCURRENCY = 4;
+
+async function mapWithLimit(items, limit, mapper) {
+  const results = new Array(items.length);
+  let cursor = 0;
+
+  async function worker() {
+    while (cursor < items.length) {
+      const index = cursor;
+      cursor += 1;
+      results[index] = await mapper(items[index], index);
+    }
+  }
+
+  await Promise.all(Array.from({ length: Math.min(limit, items.length) }, () => worker()));
+  return results;
+}
+
 async function enrichWithColors(listed) {
-  const detailed = await Promise.allSettled(
-    listed.map((p) => publicService.getProductById(p.id))
-  );
+  const detailed = await mapWithLimit(listed, ENRICH_CONCURRENCY, async (product) => {
+    if ((product.colors?.length || 0) > 0 && (product.sizes?.length || 0) > 0) {
+      return { status: 'fulfilled', value: { product } };
+    }
+    try {
+      return { status: 'fulfilled', value: await publicService.getProductById(product.id) };
+    } catch (reason) {
+      return { status: 'rejected', reason };
+    }
+  });
 
   return listed.map((product, index) => {
     const result = detailed[index];

@@ -11,7 +11,7 @@
 }
 
 .cart-page-title {
-  font-size: 2.6rem;
+  font-size: clamp(1.6rem, 5vw, 2.6rem);
   color: var(--color-primary);
 }
 
@@ -184,13 +184,20 @@
 @media (max-width: 900px) {
   .cart-content-grid {
     grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .cart-items-card {
+    padding: 0 16px;
   }
 
   .cart-assurance-banner {
     grid-template-columns: 1fr;
+    padding: 16px;
   }
 
   .order-summary-card {
     position: static;
+    padding: 20px;
   }
 }

@@ -7,7 +7,7 @@
 }
 
 .profile-title {
-  font-size: 2.6rem;
+  font-size: clamp(1.6rem, 5vw, 2.6rem);
   color: var(--color-primary);
   margin-bottom: 6px;
 }
@@ -163,10 +163,18 @@
 
 @media (max-width: 850px) {
   .profile-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .profile-account-settings {
-    padding: 24px;
+    padding: 20px 16px;
+  }
+
+  .profile-delete-actions {
+    flex-direction: column-reverse;
+  }
+
+  .profile-delete-actions .btn {
+    width: 100%;
   }
 }

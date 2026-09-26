@@ -2,9 +2,13 @@
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  max-width: 100%;
+  min-width: 0;
 }
 
 .customer-main {
   flex: 1;
   padding-top: var(--store-header-h, 148px);
+  min-width: 0;
+  max-width: 100%;
 }

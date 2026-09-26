@@ -3,6 +3,8 @@
   top: calc(100% + 8px);
   left: 0;
   right: 0;
+  width: 100%;
+  max-width: 100%;
   z-index: 1200;
   background: #ffffff;
   border: 1px solid var(--color-border);
