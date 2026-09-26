@@ -27,10 +27,11 @@ extra sleeve fabric is provided also.
 duppatta is embelished with matching tussels and matching lace with premium feel.
 Style : Straight Kurta with Sharara and dupatta set -->
 
+<!-- link = https://m.media-amazon.com/images/I/61EETQbWvgL._AC_SY550_.jpg -->
 <!-- size  -->
 <!-- X-Small
 Small
-Medium
+Medium`
 Large
 X-Large
 XX-Large
