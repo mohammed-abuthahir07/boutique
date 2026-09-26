@@ -84,6 +84,8 @@
 .stat-body {
   display: flex;
   flex-direction: column;
+  min-width: 0;
+  flex: 1;
 }
 
 .stat-label {
@@ -106,6 +108,7 @@
 .stat-desc {
   font-size: 0.76rem;
   color: var(--color-text-muted);
+  line-height: 1.4;
 }
 
 .text-warning {
@@ -324,14 +327,146 @@
 }
 
 @media (max-width: 768px) {
+  .admin-dashboard-page {
+    gap: 16px;
+  }
+
+  .dashboard-page-header {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .dashboard-page-header .header-actions {
+    width: 100%;
+  }
+
+  .dashboard-page-header .btn {
+    width: 100%;
+  }
+
+  .admin-view-title {
+    font-size: 1.28rem;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .dashboard-charts-grid,
+  .dashboard-tables-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .stat-card,
+  .dash-panel-card,
+  .dash-table-card {
+    padding: 16px;
+  }
+
+  .stat-card {
+    align-items: center;
+    gap: 14px;
+  }
+
+  .stat-card:hover {
+    transform: none;
+  }
+
+  .stat-label {
+    font-size: 0.72rem;
+    letter-spacing: 0.4px;
+  }
+
+  .stat-val {
+    font-family: var(--font-admin);
+    font-size: 1.45rem;
+    overflow-wrap: anywhere;
+  }
+
+  .stat-desc {
+    font-size: 0.78rem;
+  }
+
+  .panel-header {
+    align-items: flex-start;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .panel-title {
+    font-size: 0.82rem;
+    line-height: 1.35;
+  }
+
+  .month-rev-item {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      'month amount'
+      'bar bar';
+    align-items: center;
+    gap: 6px 10px;
+  }
+
+  .month-tag {
+    grid-area: month;
+    width: auto;
+    min-width: 0;
+  }
+
+  .month-bar-wrap {
+    grid-area: bar;
+    height: 10px;
+  }
+
+  .month-amount {
+    grid-area: amount;
+    width: auto;
+    min-width: 0;
+    font-size: 0.92rem;
+  }
+
+  .yearly-revenue-summary {
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .year-metric-box {
+    padding: 14px;
+  }
+
+  .year-val {
+    font-size: 1.2rem;
+    overflow-wrap: anywhere;
+  }
+
+  .order-status-pills-row {
+    flex-direction: column;
+  }
+
+  .status-metric-pill {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
   .admin-table-wrap,
   .admin-table-container {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
   }
+
+  .admin-layout .admin-dashboard-page .admin-table,
+  .admin-dashboard-page .admin-table,
+  .admin-dashboard-page .admin-table-wrap .admin-table {
+    table-layout: auto;
+    min-width: 520px;
+  }
 }
 
-@media (max-width: 1200px) {
+@media (max-width: 1200px) and (min-width: 769px) {
   .stats-grid {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -343,58 +478,13 @@
 }
 
 @media (max-width: 600px) {
-  .stats-grid {
-    grid-template-columns: 1fr 1fr;
-  }
-
-  .admin-dashboard-page {
-    gap: 16px;
-  }
-
-  .dashboard-page-header {
-    align-items: flex-start;
-  }
-
-  .dashboard-page-header .btn {
-    width: auto;
-  }
-
   .admin-view-title {
-    font-size: 1.2rem;
+    font-size: 1.18rem;
   }
 
   .stat-card,
   .dash-panel-card,
   .dash-table-card {
     padding: 14px;
-  }
-
-  .stat-label {
-    font-size: 0.66rem;
-  }
-
-  .stat-val {
-    font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif;
-    font-size: 1.15rem;
-  }
-
-  .yearly-revenue-summary {
-    flex-direction: column;
-  }
-
-  .month-rev-item {
-    flex-wrap: nowrap;
-    gap: 8px;
-  }
-
-  .month-tag {
-    width: 58px;
-    flex-shrink: 0;
-  }
-
-  .month-amount {
-    width: auto;
-    min-width: 72px;
-    text-align: right;
   }
 }

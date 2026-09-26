@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, NavLink, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
-import { Heart, LogOut, Menu, Package, Search, Shield, ShoppingBag, User, X } from 'lucide-react';
+import { Heart, LogOut, Menu, Package, Search, ShoppingBag, User, X } from 'lucide-react';
 import { useCustomerAuth } from '../../context/CustomerAuthContext';
 import { useCart } from '../../context/CartContext';
 import { useWishlist } from '../../context/WishlistContext';
@@ -180,9 +180,6 @@ export default function Navbar() {
       <div className="announcement-bar">
         <div className="container announcement-content">
           <span>Free insured delivery across India · Easy returns · Secure checkout</span>
-          <Link to="/admin/login" className="admin-portal-link" title="Admin Portal">
-            <Shield size={12} /> Admin
-          </Link>
         </div>
       </div>
 

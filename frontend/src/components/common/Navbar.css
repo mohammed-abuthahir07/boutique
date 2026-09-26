@@ -26,16 +26,9 @@
 .announcement-content {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
+  text-align: center;
   gap: 12px;
-}
-
-.admin-portal-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  color: var(--color-accent);
-  font-size: 0.7rem;
 }
 
 .navbar-container {
@@ -382,6 +375,14 @@
 
   .announcement-bar {
     padding: 5px 0;
+    font-size: 0.62rem;
+    letter-spacing: 0.3px;
+  }
+
+  .announcement-content span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   .navbar-container {
@@ -454,17 +455,6 @@
 
   .mobile-nav-link {
     text-align: center;
-  }
-
-  .announcement-bar {
-    font-size: 0.62rem;
-    letter-spacing: 0.3px;
-  }
-
-  .announcement-content span {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
   }
 }
 

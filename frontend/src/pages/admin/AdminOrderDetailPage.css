@@ -96,6 +96,25 @@
   color: var(--color-primary);
 }
 
+.admin-order-variant {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.admin-order-variant-tag {
+  display: inline-flex;
+  align-items: center;
+  background-color: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+  font-size: 0.76rem;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
 .item-title-link:hover {
   color: var(--color-accent);
 }

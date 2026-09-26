@@ -13,6 +13,14 @@ import { useToast } from '../../context/ToastContext';
 import Loader from '../../components/common/Loader';
 import './AdminOrderDetailPage.css';
 
+function variantLabel(value) {
+  const text = String(value ?? '').trim();
+  if (!text || text.toLowerCase() === 'null' || text.toLowerCase() === 'undefined') {
+    return '';
+  }
+  return text;
+}
+
 const ALLOWED_STATUSES = [
   'PENDING',
   'CONFIRMED',
@@ -166,7 +174,10 @@ export default function AdminOrderDetailPage() {
               </thead>
               <tbody>
                 {order.items &&
-                  order.items.map((item) => (
+                  order.items.map((item) => {
+                    const color = variantLabel(item.variant_color);
+                    const size = variantLabel(item.variant_size);
+                    return (
                     <tr key={item.id}>
                       <td>
                         <Link to={`/admin/products/${item.product_id}`} className="item-title-link">
@@ -175,12 +186,23 @@ export default function AdminOrderDetailPage() {
                         <span className="font-mono text-muted d-block font-xs">
                           Product ID #{item.product_id}
                         </span>
+                        {(color || size) && (
+                          <div className="admin-order-variant">
+                            {color && (
+                              <span className="admin-order-variant-tag">Color: {color}</span>
+                            )}
+                            {size && (
+                              <span className="admin-order-variant-tag">Size: {size}</span>
+                            )}
+                          </div>
+                        )}
                       </td>
                       <td>{formatPrice(item.price)}</td>
                       <td>{item.quantity}</td>
                       <td className="text-right font-semibold">{formatPrice(item.subtotal)}</td>
                     </tr>
-                  ))}
+                    );
+                  })}
               </tbody>
             </table>
           </div>
