@@ -11,7 +11,7 @@ import './CheckoutPage.css';
 
 export default function CheckoutPage() {
   const { customer } = useCustomerAuth();
-  const { cart, clearCartState } = useCart();
+  const { cart, loading: cartLoading, clearCartState } = useCart();
   const { error, success } = useToast();
   const navigate = useNavigate();
 
@@ -58,18 +58,13 @@ export default function CheckoutPage() {
     }
   }, [customer]);
 
-  // Redirect if cart is empty
   useEffect(() => {
+    if (cartLoading) return undefined;
     if (!cart.items || cart.items.length === 0) {
-      // Allow brief moment for cart context initialization
-      const timer = setTimeout(() => {
-        if (!cart.items || cart.items.length === 0) {
-          navigate('/cart');
-        }
-      }, 500);
-      return () => clearTimeout(timer);
+      navigate('/cart');
     }
-  }, [cart.items, navigate]);
+    return undefined;
+  }, [cart.items, cartLoading, navigate]);
 
   const validate = () => {
     const errs = {};

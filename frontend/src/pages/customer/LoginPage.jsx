@@ -60,8 +60,8 @@ export default function LoginPage() {
             shape: 'rectangular',
           });
         }
-      } catch (err) {
-        console.error('Google Sign-In initialization error:', err);
+      } catch {
+        // Google script may be blocked; email login remains available.
       }
     }
   }, [googleLogin, navigate, redirectPath, success, error]);

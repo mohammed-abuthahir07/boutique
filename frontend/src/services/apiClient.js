@@ -51,17 +51,22 @@ class ApiClient {
 
     const requestHeaders = { ...headers };
 
-    // Inject appropriate JWT Bearer token
     if (authType === 'customer') {
       const token = this.getCustomerToken();
-      if (token) {
-        requestHeaders['Authorization'] = `Bearer ${token}`;
+      if (!token) {
+        const error = new Error('Customer authentication required');
+        error.status = 401;
+        throw error;
       }
+      requestHeaders.Authorization = `Bearer ${token}`;
     } else if (authType === 'admin') {
       const token = this.getAdminToken();
-      if (token) {
-        requestHeaders['Authorization'] = `Bearer ${token}`;
+      if (!token) {
+        const error = new Error('Admin authentication required');
+        error.status = 401;
+        throw error;
       }
+      requestHeaders.Authorization = `Bearer ${token}`;
     }
 
     const config = {

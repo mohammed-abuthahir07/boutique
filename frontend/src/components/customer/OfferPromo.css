@@ -189,7 +189,7 @@
   }
 
   .offer-ad-discount {
-    font-size: 2.4rem;
+    font-size: clamp(1.6rem, 8vw, 2.2rem);
   }
 
   .offer-ad-title {

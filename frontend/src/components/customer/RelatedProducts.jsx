@@ -49,7 +49,7 @@ export default function RelatedProducts({ productId, categoryId }) {
   return (
     <section className="related-products-section" aria-label="Related products">
       <div className="related-products-header">
-        <h2 className="related-products-title">Releted Products</h2>
+        <h2 className="related-products-title">Related Products</h2>
         <p className="related-products-subtitle">More pieces from the same collection</p>
       </div>
       <ProductGrid products={related} />

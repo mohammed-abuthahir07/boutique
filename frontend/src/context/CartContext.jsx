@@ -36,9 +36,8 @@ export function CartProvider({ children }) {
       if (res.success && res.cart) {
         setCart(res.cart);
       }
-    } catch (err) {
-      // If unauthorized or network error, silently handle
-      console.error('Error fetching cart:', err);
+    } catch {
+      // Expired or missing session: keep an empty cart without console noise.
     } finally {
       setLoading(false);
     }

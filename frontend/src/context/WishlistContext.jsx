@@ -27,8 +27,8 @@ export function WishlistProvider({ children }) {
         setFavorites(res.favorites);
         setFavoriteIds(new Set(res.favorites.map((f) => Number(f.product_id))));
       }
-    } catch (err) {
-      console.error('Error fetching favorites:', err);
+    } catch {
+      // Expired or missing session: keep an empty wishlist without console noise.
     } finally {
       setLoading(false);
     }

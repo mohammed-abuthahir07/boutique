@@ -287,6 +287,7 @@ export default function ProductDetailPage() {
                   className="btn btn-primary btn-lg add-to-cart-btn"
                   onClick={handleAddToCart}
                   disabled={isOutOfStock || !selectedVariant || addingToCart}
+                  aria-busy={addingToCart}
                 >
                   <ShoppingBag size={18} />
                   {addingToCart ? 'Adding...' : isOutOfStock ? 'Sold out' : 'Add to Cart'}
